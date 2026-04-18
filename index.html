@@ -1800,6 +1800,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   } catch(e) {}
   render();
 });
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js');
+}
 </script>
 </body>
 </html>
