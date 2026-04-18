@@ -1,125 +1,1800 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BTC DCA Mobile</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-180.jpg">
-    <meta name="theme-color" content="#F7931A">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>비트코인 저축 대시보드</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #0e1117;
+  --bg2: #141820;
+  --card: #1a2030;
+  --card2: #1e2535;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --ink: #f0f4ff;
+  --muted: #8892a4;
+  --muted2: #5d6880;
+  --accent: #f7931a;
+  --accent-glow: rgba(247,147,26,0.15);
+  --accent2: #3b82f6;
+  --accent2-glow: rgba(59,130,246,0.15);
+  --good: #22c55e;
+  --bad: #ef4444;
+  --good-bg: rgba(34,197,94,0.1);
+  --bad-bg: rgba(239,68,68,0.1);
+  --radius: 16px;
+  --radius-lg: 24px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  color:var(--ink);
+  font-family:'Pretendard',system-ui,sans-serif;
+  background:var(--bg);
+  min-height:100vh;
+  font-size:14px;
+  line-height:1.6;
+}
+body::before {
+  content:"";
+  position:fixed;
+  top:-200px; right:-200px;
+  width:600px; height:600px;
+  background:radial-gradient(circle, rgba(247,147,26,0.06) 0%, transparent 70%);
+  pointer-events:none; z-index:0;
+}
+body::after {
+  content:"";
+  position:fixed;
+  bottom:-200px; left:-200px;
+  width:500px; height:500px;
+  background:radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%);
+  pointer-events:none; z-index:0;
+}
 
-    <style>
-        :root {
-            --btc-orange: #F7931A;
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #ffffff;
-            --accent-color: #4caf50;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        .container {
-            width: 100%;
-            max-width: 450px;
-        }
-        header {
-            text-align: center;
-            margin-top: 20px;
-            margin-bottom: 30px;
-        }
-        header img {
-            width: 80px;
-            height: 80px;
-            border-radius: 20px;
-            margin-bottom: 10px;
-        }
-        .card {
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            margin-bottom: 20px;
-        }
-        h1 { color: var(--btc-orange); margin: 0; font-size: 1.6rem; font-weight: 800; }
-        label { display: block; font-size: 0.85rem; color: #bbb; margin-bottom: 8px; }
-        input {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            border: 1px solid #333;
-            background: #2c2c2c;
-            color: white;
-            box-sizing: border-box;
-            font-size: 1.1rem;
-        }
-        button {
-            width: 100%;
-            padding: 16px;
-            background: var(--btc-orange);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-        }
-        .result-val { font-size: 1.4rem; font-weight: bold; color: var(--accent-color); text-align: center; }
-    </style>
+/* ===== LAYOUT ===== */
+.wrap { max-width:1360px; margin:0 auto; padding:24px 20px; position:relative; z-index:1; }
+
+/* ===== TOPBAR ===== */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  padding:14px 20px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  margin-bottom:20px;
+}
+.topbar-left { display:flex; align-items:center; gap:12px; }
+.logo-icon {
+  width:40px; height:40px; border-radius:12px;
+  background:linear-gradient(135deg, #f7931a, #e67e00);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; box-shadow:0 4px 12px rgba(247,147,26,0.3);
+}
+.logo-text { font-size:18px; font-weight:800; letter-spacing:-0.03em; color:var(--ink); }
+.logo-text span { color:var(--accent); }
+.live-price-area {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.live-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 14px; border-radius:10px;
+  background:var(--accent-glow); border:1px solid rgba(247,147,26,0.25);
+  color:var(--accent); font-weight:700; font-size:13px;
+  cursor:pointer; transition:all .2s;
+}
+.live-btn:hover { background:rgba(247,147,26,0.25); transform:translateY(-1px); }
+.live-btn svg { width:14px; height:14px; }
+.live-price-val { font-size:13px; font-weight:700; color:var(--ink); }
+.live-price-time { font-size:11px; color:var(--muted); }
+
+/* ===== KPI GRID ===== */
+.kpi-grid {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:16px;
+}
+.kpi-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:20px;
+  position:relative; overflow:hidden;
+  transition:border-color .2s, transform .2s;
+}
+.kpi-card:hover { border-color:var(--border2); transform:translateY(-2px); }
+.kpi-card::before {
+  content:"";
+  position:absolute; top:0; left:0; right:0; height:3px;
+  border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+}
+.kpi-card.k-invested::before { background:var(--accent2); }
+.kpi-card.k-btc::before { background:var(--accent); }
+.kpi-card.k-value::before { background:linear-gradient(90deg,var(--accent2),var(--accent)); }
+.kpi-card.k-return::before { background:var(--good); }
+.kpi-card.bad::before { background:var(--bad) !important; }
+.kpi-icon { font-size:20px; margin-bottom:10px; }
+.kpi-label { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px; }
+.kpi-val { font-size:28px; font-weight:900; letter-spacing:-0.04em; line-height:1; }
+.kpi-sub { font-size:12px; color:var(--muted); margin-top:6px; }
+.kpi-badge {
+  display:inline-block; padding:2px 8px; border-radius:99px;
+  font-size:11px; font-weight:800;
+  background:var(--good-bg); color:var(--good);
+}
+.kpi-badge.bad { background:var(--bad-bg); color:var(--bad); }
+
+/* ===== MAIN CONTENT GRID ===== */
+.content-grid {
+  display:grid;
+  grid-template-columns:1.7fr 1fr;
+  gap:16px;
+  margin-bottom:16px;
+}
+
+/* ===== CARD ===== */
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:24px;
+}
+.card-title {
+  font-size:16px; font-weight:800; color:var(--ink); margin-bottom:18px;
+  display:flex; align-items:center; gap:8px;
+}
+.card-title .dot {
+  width:8px; height:8px; border-radius:99px;
+  background:var(--accent); display:inline-block;
+}
+
+/* ===== CHART ===== */
+.chart-wrap { position:relative; }
+.chart-box { height:360px; }
+.legend {
+  display:flex; gap:16px; flex-wrap:wrap; margin-top:12px;
+  color:var(--muted); font-size:12px; font-weight:700;
+}
+.legend-item { display:flex; align-items:center; gap:6px; }
+.legend-dot { width:10px; height:10px; border-radius:99px; }
+.chart-tip {
+  position:absolute; display:none;
+  min-width:180px; background:#0a0e17;
+  border:1px solid var(--border2); color:var(--ink);
+  border-radius:12px; padding:10px 12px;
+  box-shadow:0 12px 24px rgba(0,0,0,0.5);
+  font-size:12px; line-height:1.6; z-index:20; pointer-events:none;
+}
+.chart-tip .ct-date { font-weight:800; color:var(--accent); margin-bottom:5px; }
+.chart-tip .ct-row { display:flex; justify-content:space-between; gap:10px; }
+.chart-tip .ct-b { color:#93c5fd; }
+.chart-tip .ct-o { color:#fbbf24; }
+
+/* ===== SUMMARY ===== */
+.summary-list { display:flex; flex-direction:column; gap:8px; }
+.summary-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 14px; border-radius:12px;
+  background:var(--card2); border:1px solid var(--border);
+}
+.summary-row .s-label { font-size:12px; color:var(--muted); font-weight:600; }
+.summary-row .s-val { font-size:13px; font-weight:800; }
+.summary-row .s-val.good { color:var(--good); }
+.summary-row .s-val.bad { color:var(--bad); }
+
+/* ===== DIVIDER ===== */
+.section-divider {
+  height:1px; background:var(--border);
+  margin:16px 0;
+}
+
+/* ===== THUMB EXPORT ===== */
+.thumb-area { margin-top:16px; }
+.thumb-actions { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:9px 16px; border-radius:10px; border:none;
+  font-size:13px; font-weight:700; cursor:pointer;
+  transition:all .15s; white-space:nowrap;
+}
+.btn-primary { background:var(--accent); color:#0e0a00; }
+.btn-primary:hover { background:#e8850f; transform:translateY(-1px); }
+.btn-ghost {
+  background:transparent; color:var(--muted);
+  border:1px solid var(--border2);
+}
+.btn-ghost:hover { background:var(--card2); color:var(--ink); border-color:var(--border2); }
+.btn svg { width:14px; height:14px; }
+
+/* ===== THUMBNAIL CARD ===== */
+.thumb-card {
+  position:relative; overflow:hidden;
+  border-radius:20px;
+  padding:28px 32px;
+  background:linear-gradient(135deg, #0b1220 0%, #1a2340 50%, #0f1925 100%);
+  border:1px solid rgba(247,147,26,0.2);
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+.thumb-card::before {
+  content:""; position:absolute;
+  bottom:-100px; left:-100px;
+  width:300px; height:300px; border-radius:50%;
+  background:radial-gradient(circle, rgba(247,147,26,0.18), transparent 70%);
+  pointer-events:none;
+}
+.thumb-card::after {
+  content:""; position:absolute;
+  top:-80px; right:-80px;
+  width:250px; height:250px; border-radius:50%;
+  background:radial-gradient(circle, rgba(59,130,246,0.12), transparent 70%);
+  pointer-events:none;
+}
+.thumb-inner { position:relative; z-index:1; display:grid; gap:18px; }
+.thumb-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; }
+.thumb-tag {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:5px 12px; border-radius:99px;
+  background:rgba(247,147,26,0.12); border:1px solid rgba(247,147,26,0.2);
+  font-size:12px; font-weight:800; color:var(--accent);
+}
+.thumb-date-tag {
+  padding:5px 12px; border-radius:99px;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+  font-size:11px; font-weight:700; color:rgba(255,255,255,0.7);
+}
+.thumb-title { font-size:clamp(26px,3.5vw,38px); font-weight:900; letter-spacing:-0.04em; color:#fff; }
+.thumb-kpis { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.thumb-kpi {
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:16px; padding:16px;
+  backdrop-filter:blur(8px);
+}
+.thumb-kpi label { display:block; font-size:11px; font-weight:700; color:rgba(255,255,255,0.5); margin-bottom:6px; }
+.thumb-kpi strong { display:block; font-size:clamp(20px,2.5vw,28px); font-weight:900; letter-spacing:-0.03em; color:#fff; }
+.thumb-kpi small { display:block; font-size:11px; color:rgba(255,255,255,0.55); margin-top:4px; }
+.thumb-footer { display:flex; gap:10px; flex-wrap:wrap; }
+.thumb-pill {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 12px; border-radius:10px;
+  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1);
+  font-size:12px; font-weight:700; color:rgba(255,255,255,0.8);
+}
+
+/* ===== EDIT SECTION ===== */
+.edit-section { margin-top:16px; }
+
+/* ===== TOOLBAR ===== */
+.toolbar {
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+  margin-bottom:16px;
+}
+.toolbar-left { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.toolbar-right { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-left:auto; }
+.btn-sm { padding:7px 12px; font-size:12px; border-radius:8px; }
+.btn-warn { background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); }
+.btn-warn:hover { background:rgba(239,68,68,0.2); }
+.search-input {
+  padding:8px 14px; border-radius:10px;
+  background:var(--card2); border:1px solid var(--border2);
+  color:var(--ink); font-size:13px; font-weight:500;
+  outline:none; min-width:220px;
+  transition:border-color .2s;
+}
+.search-input::placeholder { color:var(--muted2); }
+.search-input:focus { border-color:var(--accent2); box-shadow:0 0 0 3px rgba(59,130,246,0.1); }
+
+/* ===== INFO NOTE ===== */
+.info-note {
+  padding:12px 16px; border-radius:12px;
+  background:rgba(59,130,246,0.06);
+  border:1px solid rgba(59,130,246,0.15);
+  color:var(--muted); font-size:12px; line-height:1.7;
+  margin-bottom:16px;
+}
+.info-note strong { color:var(--ink); }
+
+/* ===== STATUS MSG ===== */
+.status-msg {
+  display:none; padding:10px 16px; border-radius:10px;
+  background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2);
+  color:var(--good); font-size:13px; font-weight:600;
+  margin-bottom:12px;
+}
+
+/* ===== TABLE ===== */
+.table-container {
+  border:1px solid var(--border); border-radius:var(--radius-lg);
+  overflow:auto; max-height:600px;
+  background:var(--card);
+}
+table { width:100%; border-collapse:collapse; min-width:1000px; }
+thead th {
+  position:sticky; top:0; z-index:2;
+  background:#141820; border-bottom:1px solid var(--border2);
+  color:var(--muted); font-size:11px; font-weight:800;
+  text-transform:uppercase; letter-spacing:0.06em;
+  padding:12px 12px; text-align:left; white-space:nowrap;
+}
+thead th.right { text-align:right; }
+thead th.center { text-align:center; }
+tbody tr { transition:background .1s; }
+tbody tr:hover { background:rgba(255,255,255,0.03); }
+tbody tr:not(:last-child) { border-bottom:1px solid rgba(255,255,255,0.04); }
+tbody td { padding:8px 12px; font-size:13px; vertical-align:middle; }
+tbody td.right { text-align:right; }
+tbody td.center { text-align:center; }
+
+/* Row number */
+.row-num {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:28px; height:20px; border-radius:6px;
+  background:rgba(255,255,255,0.05); color:var(--muted);
+  font-size:11px; font-weight:700;
+}
+
+/* Table inputs */
+.td-input {
+  width:100%; border:1px solid transparent; border-radius:8px;
+  padding:6px 10px; font-size:13px; font-weight:600;
+  background:transparent; color:var(--ink);
+  transition:all .15s; text-align:right;
+}
+.td-input:focus {
+  outline:none; border-color:var(--accent2);
+  background:rgba(59,130,246,0.08);
+  box-shadow:0 0 0 3px rgba(59,130,246,0.1);
+}
+.td-input.date-input { text-align:left; color-scheme:dark; }
+
+/* Table value chips */
+.val-chip { font-size:12px; font-weight:700; color:var(--muted); }
+.val-good { color:var(--good); font-weight:800; }
+.val-bad { color:var(--bad); font-weight:800; }
+
+/* Delete button */
+.del-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:28px; height:28px; border-radius:8px;
+  background:transparent; color:var(--muted2);
+  border:1px solid transparent; cursor:pointer;
+  font-size:14px; transition:all .15s;
+}
+.del-btn:hover { background:rgba(239,68,68,0.1); color:#ef4444; border-color:rgba(239,68,68,0.2); }
+
+/* ===== CONTROLS BAR ===== */
+.controls-bar {
+  display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  align-items:center; margin-top:16px;
+}
+.controls-left { display:flex; gap:8px; flex-wrap:wrap; }
+.controls-right { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.backup-time { font-size:11px; color:var(--muted2); font-weight:600; }
+.file-input-label {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 12px; border-radius:8px; border:none;
+  font-size:12px; font-weight:700; cursor:pointer;
+  transition:all .15s; white-space:nowrap;
+  background:transparent; color:var(--muted);
+  border:1px solid var(--border2);
+}
+.file-input-label:hover { background:var(--card2); color:var(--ink); }
+
+.btn-excel {
+  background:rgba(34,197,94,0.12); color:#22c55e;
+  border:1px solid rgba(34,197,94,0.25);
+}
+.btn-excel:hover { background:rgba(34,197,94,0.22); transform:translateY(-1px); }
+.file-label-excel {
+  background:rgba(34,197,94,0.08); color:#22c55e;
+  border:1px solid rgba(34,197,94,0.2);
+}
+.file-label-excel:hover { background:rgba(34,197,94,0.18); color:#4ade80; }
+
+/* ===== EXCEL PREVIEW MODAL ===== */
+.modal-backdrop {
+  display:none; position:fixed; inset:0; z-index:2000;
+  background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center;
+}
+.modal-backdrop.open { display:flex; }
+.modal {
+  background:var(--card); border:1px solid var(--border2);
+  border-radius:var(--radius-lg); padding:28px;
+  width:min(680px,95vw); max-height:80vh;
+  display:flex; flex-direction:column; gap:16px;
+  box-shadow:0 24px 64px rgba(0,0,0,0.6);
+}
+.modal-title {
+  font-size:16px; font-weight:800; color:var(--ink);
+  display:flex; align-items:center; gap:8px;
+}
+.modal-title .dot { width:8px; height:8px; border-radius:99px; background:var(--good); display:inline-block; }
+.modal-desc { font-size:12px; color:var(--muted); line-height:1.6; }
+.modal-preview {
+  flex:1; overflow:auto; border:1px solid var(--border);
+  border-radius:12px; background:var(--card2);
+  max-height:320px;
+}
+.modal-preview table { width:100%; border-collapse:collapse; min-width:600px; font-size:12px; }
+.modal-preview thead th {
+  position:sticky; top:0; background:var(--card);
+  padding:8px 10px; text-align:left; font-weight:700;
+  color:var(--muted); font-size:11px; text-transform:uppercase;
+  letter-spacing:.04em; border-bottom:1px solid var(--border2);
+}
+.modal-preview thead th.right { text-align:right; }
+.modal-preview tbody td { padding:6px 10px; border-bottom:1px solid rgba(255,255,255,0.03); color:var(--ink); }
+.modal-preview tbody td.right { text-align:right; }
+.modal-preview tbody tr:hover { background:rgba(255,255,255,0.03); }
+.modal-stat { font-size:13px; color:var(--muted); }
+.modal-stat strong { color:var(--ink); }
+.modal-actions { display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; }
+.modal-warn {
+  padding:10px 14px; border-radius:10px;
+  background:rgba(247,147,26,0.08); border:1px solid rgba(247,147,26,0.2);
+  color:#f7931a; font-size:12px; line-height:1.5;
+}
+
+/* ===== GOAL PANEL ===== */
+.goal-panel {
+  display:grid;
+  grid-template-columns:1.2fr 1fr 1.4fr;
+  gap:12px;
+  margin-bottom:16px;
+}
+.goal-box {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:20px;
+  position:relative; overflow:hidden;
+  transition:border-color .2s;
+}
+.goal-box:hover { border-color:var(--border2); }
+.goal-box::before {
+  content:"";
+  position:absolute; top:0; left:0; right:0; height:3px;
+  border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+}
+.goal-box.g-set::before    { background:var(--accent); }
+.goal-box.g-avg::before    { background:var(--accent2); }
+.goal-box.g-progress::before { background:linear-gradient(90deg,var(--accent2),var(--accent)); }
+.goal-label {
+  font-size:11px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;
+}
+.goal-input-row { display:flex; gap:8px; align-items:center; }
+.goal-input {
+  flex:1; border:1px solid var(--border2); border-radius:10px;
+  padding:10px 12px; font-size:18px; font-weight:900;
+  background:var(--card2); color:var(--ink); outline:none;
+  transition:border-color .2s;
+}
+.goal-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+.goal-save-btn {
+  padding:10px 16px; border-radius:10px; border:none;
+  background:var(--accent); color:#000;
+  font-size:13px; font-weight:800; cursor:pointer;
+  transition:all .15s; white-space:nowrap;
+}
+.goal-save-btn:hover { background:#e8850f; transform:translateY(-1px); }
+.goal-hint { font-size:11px; color:var(--muted2); margin-top:8px; line-height:1.5; }
+.goal-value {
+  font-size:clamp(22px,2.5vw,32px); font-weight:900;
+  letter-spacing:-0.04em; line-height:1;
+}
+.goal-sub { font-size:11px; color:var(--muted); margin-top:6px; }
+.goal-pct {
+  font-size:clamp(22px,2.5vw,32px); font-weight:900;
+  letter-spacing:-0.04em; line-height:1;
+}
+.goal-remain { font-size:11px; color:var(--muted); margin-top:6px; }
+.goal-progress-wrap { margin-top:14px; }
+.goal-bar-track {
+  height:10px; background:rgba(255,255,255,0.07);
+  border-radius:999px; overflow:hidden;
+}
+.goal-bar-fill {
+  height:100%; width:0%;
+  background:linear-gradient(90deg,var(--accent2),var(--accent));
+  border-radius:999px;
+  transition:width .4s cubic-bezier(.4,0,.2,1);
+}
+.goal-meta-row {
+  display:flex; justify-content:space-between;
+  margin-top:7px; font-size:11px; font-weight:700; color:var(--muted);
+}
+@media(max-width:1100px){ .goal-panel { grid-template-columns:1fr 1fr; } }
+@media(max-width:680px) { .goal-panel { grid-template-columns:1fr; } }
+
+/* ===== CHART FILTER ===== */
+.chart-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+.chart-filter { display:flex; gap:5px; }
+.cf-btn {
+  padding:4px 11px; border-radius:8px; border:1px solid var(--border2);
+  background:transparent; color:var(--muted); font-size:11px; font-weight:700;
+  cursor:pointer; transition:all .15s;
+}
+.cf-btn:hover { background:var(--card2); color:var(--ink); }
+.cf-btn.active { background:var(--accent); color:#000; border-color:var(--accent); }
+
+/* ===== YEAR SUMMARY ===== */
+.year-summary-title {
+  font-size:11px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.06em; margin:16px 0 8px;
+}
+.year-row {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:9px 12px; border-radius:10px;
+  border:1px solid var(--border); background:var(--card2);
+  cursor:pointer; transition:border-color .15s; margin-bottom:5px;
+}
+.year-row:hover { border-color:var(--border2); }
+.yr-label { font-size:13px; font-weight:900; color:var(--accent); min-width:36px; }
+.yr-stat { font-size:12px; color:var(--muted); }
+.yr-stat strong { color:var(--ink); }
+.yr-arrow { margin-left:auto; color:var(--muted2); font-size:10px; transition:transform .2s; }
+.year-row.open .yr-arrow { transform:rotate(180deg); }
+.year-detail {
+  display:none; padding:10px 14px 12px;
+  border:1px solid var(--border); border-top:none;
+  border-radius:0 0 10px 10px; background:rgba(255,255,255,.02);
+  margin-top:-5px; margin-bottom:5px;
+}
+.year-detail.open { display:block; }
+.yr-detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px 16px; }
+.yr-detail-item { font-size:11px; color:var(--muted); }
+.yr-detail-item strong { display:block; font-size:13px; font-weight:800; color:var(--ink); margin-top:2px; }
+
+/* ===== DELETE MODAL ===== */
+.del-modal-bg {
+  display:none; position:fixed; inset:0; z-index:3000;
+  background:rgba(0,0,0,.65); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center;
+}
+.del-modal-bg.open { display:flex; }
+.del-modal {
+  background:var(--card); border:1px solid var(--border2);
+  border-radius:var(--radius-lg); padding:28px;
+  width:min(400px,92vw); box-shadow:0 24px 64px rgba(0,0,0,.6);
+}
+.del-modal-icon { font-size:28px; margin-bottom:10px; }
+.del-modal-title { font-size:15px; font-weight:800; color:var(--ink); margin-bottom:6px; }
+.del-modal-desc { font-size:13px; color:var(--muted); line-height:1.6; margin-bottom:20px; }
+.del-modal-actions { display:flex; gap:8px; justify-content:flex-end; }
+.btn-danger { background:rgba(239,68,68,.12); color:#ef4444; border:1px solid rgba(239,68,68,.25); }
+.btn-danger:hover { background:rgba(239,68,68,.22); }
+
+/* ===== DUPLICATE DATE ===== */
+.dup-row td { background:rgba(247,147,26,.06) !important; }
+.dup-badge {
+  display:inline-block; padding:1px 6px; border-radius:5px;
+  background:rgba(247,147,26,.2); color:var(--accent);
+  font-size:10px; font-weight:800; margin-left:5px; vertical-align:middle;
+}
+
+/* ===== PAGINATION ===== */
+.pagination {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px; border-top:1px solid var(--border);
+  font-size:12px; color:var(--muted); flex-wrap:wrap; gap:8px;
+}
+.pg-btns { display:flex; gap:4px; align-items:center; }
+.pg-btn {
+  padding:4px 10px; border-radius:7px; border:1px solid var(--border2);
+  background:transparent; color:var(--muted); font-size:12px; font-weight:700;
+  cursor:pointer; transition:all .15s; line-height:1.4;
+}
+.pg-btn:hover:not(:disabled) { background:var(--card2); color:var(--ink); }
+.pg-btn.active { background:var(--accent); color:#000; border-color:var(--accent); }
+.pg-btn:disabled { opacity:.3; cursor:not-allowed; }
+.pg-ellipsis { color:var(--muted2); padding:0 2px; font-size:12px; }
+
+/* ===== FORECAST ===== */
+.forecast-chip {
+  display:inline-block; margin-top:7px; padding:4px 10px;
+  border-radius:8px; background:rgba(59,130,246,.1);
+  border:1px solid rgba(59,130,246,.2);
+  font-size:11px; font-weight:700; color:#93c5fd; line-height:1.5;
+}
+
+/* ===== FOOTER ===== */
+.page-footer {
+  text-align:center; margin-top:24px;
+  color:var(--muted2); font-size:12px;
+  padding:20px 16px;
+  border-top:1px solid var(--border);
+  line-height:1.8;
+}
+.page-footer a {
+  color:var(--accent);
+  text-decoration:none;
+  font-weight:700;
+  transition:opacity .15s;
+}
+.page-footer a:hover { opacity:.75; text-decoration:underline; }
+.footer-copyright {
+  font-size:13px;
+  font-weight:700;
+  color:var(--muted);
+  margin-bottom:4px;
+  letter-spacing:.01em;
+}
+.footer-sub { font-size:11px; color:var(--muted2); }
+
+/* ===== FAB ===== */
+.fab {
+  position:fixed; right:24px; bottom:24px; z-index:999;
+  display:flex; flex-direction:column; gap:8px; align-items:flex-end;
+}
+.fab-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:12px 18px; border-radius:14px; border:none;
+  font-size:13px; font-weight:800; cursor:pointer;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4);
+  transition:all .2s;
+}
+.fab-main { background:var(--accent); color:#000; }
+.fab-main:hover { transform:translateY(-2px) scale(1.02); box-shadow:0 12px 32px rgba(247,147,26,0.35); }
+.fab-sec { background:var(--card); color:var(--ink); border:1px solid var(--border2); font-size:12px; padding:9px 14px; }
+.fab-sec:hover { background:var(--card2); transform:translateY(-1px); }
+
+/* ===== HIDDEN ===== */
+.hidden { display:none !important; }
+
+/* ===== THUMB ONLY MODE ===== */
+body.thumb-only .topbar,
+body.thumb-only .kpi-grid,
+body.thumb-only .goal-panel,
+body.thumb-only .content-grid .chart-col,
+body.thumb-only .edit-section,
+body.thumb-only .controls-bar,
+body.thumb-only .page-footer,
+body.thumb-only .fab { display:none !important; }
+body.thumb-only .content-grid { grid-template-columns:1fr; }
+body.thumb-only .summary-col { max-width:560px; margin:0 auto; width:100%; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:1100px) {
+  .kpi-grid { grid-template-columns:repeat(2,1fr); }
+  .content-grid { grid-template-columns:1fr; }
+}
+@media (max-width:680px) {
+  .wrap { padding:14px 12px; }
+  .kpi-grid { grid-template-columns:1fr 1fr; gap:10px; }
+  .kpi-val { font-size:22px; }
+  .thumb-kpis { grid-template-columns:1fr; }
+  .thumb-title { font-size:24px; }
+  .thumb-card { padding:20px; }
+  .topbar { flex-direction:column; align-items:flex-start; }
+  .live-price-area { flex-wrap:wrap; }
+  .controls-bar { flex-direction:column; align-items:flex-start; }
+}
+@media print {
+  .topbar, .toolbar, .controls-bar, .edit-section, .fab, .thumb-actions,
+  .btn-primary, .del-btn { display:none !important; }
+  body { background:#fff; color:#000; }
+  .card, .kpi-card, .thumb-card { background:#fff; border:1px solid #ddd; }
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <img src="icon-192.jpg" alt="App Icon">
-            <h1>BTC DCA Tracker</h1>
-            <p style="color:#888; font-size:0.9rem;">비트코인 적립식 투자 계산기</p>
-        </header>
+<div class="wrap">
 
-        <div class="card">
-            <label for="amount">매수 금액 (KRW)</label>
-            <input type="number" id="amount" placeholder="금액을 입력하세요" inputmode="numeric">
-            <button onclick="calculate()">계산하기</button>
-        </div>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-icon">₿</div>
+    <div>
+      <div class="logo-text">Bitcoin <span>Saving</span></div>
+    </div>
+  </div>
+  <div class="live-price-area">
+    <button class="live-btn" onclick="fetchLivePrice()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 8v4l3 3"/></svg>
+      실시간 BTC 조회
+    </button>
+    <span id="livePriceVal" class="live-price-val"></span>
+    <span id="livePriceTime" class="live-price-time"></span>
+  </div>
+</div>
 
-        <div id="resultCard" class="card" style="display:none;">
-            <div style="text-align:center;">
-                <label>예상 획득 수량</label>
-                <div id="result" class="result-val"></div>
-            </div>
-        </div>
+<!-- KPI GRID -->
+<div class="kpi-grid">
+  <div class="kpi-card k-invested">
+    <div class="kpi-icon">💰</div>
+    <div class="kpi-label">총 투자금</div>
+    <div id="kpiInvested" class="kpi-val">-</div>
+    <div id="kpiRounds" class="kpi-sub">-</div>
+  </div>
+  <div class="kpi-card k-btc">
+    <div class="kpi-icon">₿</div>
+    <div class="kpi-label">총 보유량</div>
+    <div id="kpiBtc" class="kpi-val">-</div>
+    <div class="kpi-sub">누적 BTC 수량</div>
+  </div>
+  <div class="kpi-card k-value">
+    <div class="kpi-icon">📈</div>
+    <div class="kpi-label">현재 평가금액</div>
+    <div id="kpiValue" class="kpi-val">-</div>
+    <div id="kpiPrice" class="kpi-sub">-</div>
+  </div>
+  <div class="kpi-card k-return" id="kpiReturnCard">
+    <div class="kpi-icon">🎯</div>
+    <div class="kpi-label">현재 수익률</div>
+    <div id="kpiReturn" class="kpi-val">-</div>
+    <div id="kpiPnl" class="kpi-sub">-</div>
+  </div>
+</div>
+
+<!-- GOAL PANEL -->
+<div class="goal-panel">
+  <div class="goal-box g-set">
+    <div class="goal-label">🎯 목표 BTC 설정</div>
+    <div class="goal-input-row">
+      <input id="btcGoal" class="goal-input" type="number" step="0.00000001" min="0" placeholder="예: 1" />
+      <button class="goal-save-btn" onclick="saveGoal()">저장</button>
+    </div>
+    <div class="goal-hint">목표 수량 입력 후 저장하면 진행률이 반영됩니다.</div>
+  </div>
+  <div class="goal-box g-avg">
+    <div class="goal-label">📊 평균 매수가</div>
+    <div id="goalAvgPrice" class="goal-value">-</div>
+    <div class="goal-sub">총 투자금 ÷ 총 보유 BTC</div>
+  </div>
+  <div class="goal-box g-progress">
+    <div class="goal-label">🏁 목표 진행률</div>
+    <div id="goalPct" class="goal-pct">-</div>
+    <div id="goalRemain" class="goal-remain">목표를 설정하면 진행률이 표시됩니다.</div>
+    <div id="goalForecast" class="forecast-chip" style="display:none"></div>
+    <div class="goal-progress-wrap">
+      <div class="goal-bar-track">
+        <div id="goalBarFill" class="goal-bar-fill"></div>
+      </div>
+      <div class="goal-meta-row">
+        <span id="goalCurrentBtc">현재 - BTC</span>
+        <span id="goalTargetBtc">목표 - BTC</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content-grid">
+  <!-- CHART -->
+  <div class="card chart-col">
+    <div class="chart-header">
+      <div class="card-title" style="margin-bottom:0"><span class="dot"></span>누적 투자금 vs 당시 평가금액</div>
+      <div class="chart-filter">
+        <button class="cf-btn" onclick="setChartRange(1)">1년</button>
+        <button class="cf-btn" onclick="setChartRange(2)">2년</button>
+        <button class="cf-btn" onclick="setChartRange(3)">3년</button>
+        <button class="cf-btn active" id="cfAll" onclick="setChartRange(0)">전체</button>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-box">
+        <svg id="chart" viewBox="0 0 760 360" width="100%" height="100%" aria-label="투자 추이 차트"></svg>
+      </div>
+      <div id="chartTip" class="chart-tip"></div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>누적 투자금</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>당시 평가금액</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a78bfa;opacity:.8"></div>평단가 기준</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="card summary-col">
+    <div class="card-title"><span class="dot"></span>요약</div>
+    <div class="summary-list">
+      <div class="summary-row"><span class="s-label">제목</span><span id="sumTitle" class="s-val">-</span></div>
+      <div class="summary-row"><span class="s-label">첫 매수일</span><span id="sumStart" class="s-val">-</span></div>
+      <div class="summary-row"><span class="s-label">최근 반영일</span><span id="sumEnd" class="s-val">-</span></div>
+      <div class="summary-row"><span class="s-label">평단가</span><span id="sumAvg" class="s-val">-</span></div>
+      <div class="summary-row"><span class="s-label">최근 매수가</span><span id="sumLast" class="s-val">-</span></div>
+      <div class="summary-row"><span class="s-label">누적 손익</span><span id="sumPnl" class="s-val">-</span></div>
     </div>
 
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(reg => console.log('PWA OK'))
-                    .catch(err => console.log('PWA Fail'));
-            });
-        }
+    <div class="section-divider"></div>
 
-        function calculate() {
-            const amount = document.getElementById('amount').value;
-            const resultCard = document.getElementById('resultCard');
-            const resultDiv = document.getElementById('result');
-            if(amount > 0) {
-                const btcPrice = 95000000; // 현재 기준 시세 (수정 가능)
-                const btcAmount = (amount / btcPrice).toFixed(8);
-                resultCard.style.display = 'block';
-                resultDiv.innerHTML = `<strong>${btcAmount} BTC</strong>`;
-            }
+    <!-- 연도별 통계 -->
+    <div class="year-summary-title">📅 연도별 투자 현황</div>
+    <div id="yearSummaryList"></div>
+
+    <div class="section-divider"></div>
+
+    <!-- TITLE INPUT -->
+    <div style="margin-bottom:10px;">
+      <label style="display:block; font-size:11px; font-weight:700; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em;">대시보드 제목</label>
+      <input id="blogTitle" class="search-input" type="text" value="비트코인 저축 현황" style="width:100%;" />
+    </div>
+
+    <!-- THUMB ACTIONS -->
+    <div class="thumb-actions">
+      <button class="btn btn-primary btn-sm" onclick="toggleThumbOnly()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+        썸네일 모드
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="scrollToThumbnail()">썸네일로 이동</button>
+      <button class="btn btn-ghost btn-sm" onclick="downloadCapture()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        이미지 저장
+      </button>
+    </div>
+
+    <!-- THUMBNAIL CARD -->
+    <div id="thumbnailCard" class="thumb-card thumb-area">
+      <div class="thumb-inner">
+        <div class="thumb-header">
+          <div class="thumb-tag">₿ Bitcoin Saving</div>
+          <div id="thumbDateRange" class="thumb-date-tag">-</div>
+        </div>
+        <h3 id="thumbTitle" class="thumb-title">-</h3>
+        <div class="thumb-kpis">
+          <div class="thumb-kpi">
+            <label>총 투자금</label>
+            <strong id="thumbInvested">-</strong>
+            <small id="thumbRounds">-</small>
+          </div>
+          <div class="thumb-kpi">
+            <label>총 보유량</label>
+            <strong id="thumbBtc">-</strong>
+            <small>누적 BTC 수량</small>
+          </div>
+          <div class="thumb-kpi">
+            <label>현재 평가금액</label>
+            <strong id="thumbValue">-</strong>
+            <small id="thumbPrice">-</small>
+          </div>
+          <div class="thumb-kpi">
+            <label>현재 수익률</label>
+            <strong id="thumbReturn">-</strong>
+            <small id="thumbPnl">-</small>
+          </div>
+        </div>
+        <div class="thumb-footer">
+          <div id="thumbAvg" class="thumb-pill">평단가 -</div>
+          <div id="thumbLast" class="thumb-pill">최근 매수가 -</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROLS BAR -->
+<div class="controls-bar">
+  <div class="controls-left">
+    <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨️ 인쇄</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportCSV()">CSV 저장</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportJSON()">JSON 저장</button>
+    <button class="btn btn-excel btn-sm" onclick="exportExcel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      엑셀 저장
+    </button>
+    <label class="file-input-label file-label-excel" for="excelFile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      엑셀 불러오기
+    </label>
+    <input id="excelFile" type="file" accept=".xlsx,.xls" class="hidden" />
+    <button class="btn btn-ghost btn-sm" onclick="exportBackup()">📦 전체 백업</button>
+    <label class="file-input-label" for="backupFile">백업 불러오기</label>
+    <input id="backupFile" type="file" accept=".json" class="hidden" />
+  </div>
+  <div class="controls-right">
+    <span id="backupTimeLabel" class="backup-time"></span>
+  </div>
+</div>
+
+<!-- EDIT SECTION -->
+<div class="card edit-section">
+  <div class="card-title" style="margin-bottom:12px"><span class="dot"></span>매수 기록 편집</div>
+  <div class="info-note">
+    날짜·금액·BTC 가격을 입력하면 누적금액, 누적수량, 당시 평가금액, 당시 수익률이 <strong>자동 계산</strong>됩니다.
+    수량은 필요하면 직접 수정할 수 있습니다. 수정 내용은 <strong>자동 저장</strong>됩니다.
+    PC를 바꾸기 전엔 <strong>전체 백업</strong>으로 파일을 저장해 두세요.
+    미래 날짜 기록은 자동으로 제외됩니다.
+  </div>
+  <div id="saveStatus" class="status-msg"></div>
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <button class="btn btn-primary btn-sm" onclick="addRow()">+ 행 추가</button>
+      <button class="btn btn-ghost btn-sm" onclick="addNextWeek()">📅 다음 주 자동 추가</button>
+      <button class="btn btn-ghost btn-sm" onclick="duplicateLastRow()">복제</button>
+      <button class="btn btn-ghost btn-sm" onclick="sortByDate()">날짜 정렬</button>
+      <button class="btn btn-ghost btn-sm btn-warn" onclick="resetOriginal()">원본으로 되돌리기</button>
+    </div>
+    <div class="toolbar-right">
+      <input id="searchInput" class="search-input" type="text" placeholder="🔍  날짜 검색 (예: 2024-03)" />
+      <label class="file-input-label" for="importFile">JSON 불러오기</label>
+      <input id="importFile" type="file" accept=".json" class="hidden" />
+    </div>
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:50px">회차</th>
+          <th>일자</th>
+          <th class="right">금액</th>
+          <th class="right">BTC 가격</th>
+          <th class="right">수량</th>
+          <th class="right">누적금액</th>
+          <th class="right">누적수량</th>
+          <th class="right">당시 평가금액</th>
+          <th class="right">수익률</th>
+          <th class="center">삭제</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="pagination">
+    <span id="pgInfo" style="font-size:12px;color:var(--muted)"></span>
+    <div class="pg-btns" id="pgBtns"></div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="delModalBg" class="del-modal-bg">
+  <div class="del-modal">
+    <div class="del-modal-icon">🗑️</div>
+    <div class="del-modal-title">이 행을 삭제할까요?</div>
+    <div id="delModalDesc" class="del-modal-desc"></div>
+    <div class="del-modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeDelModal()">취소</button>
+      <button class="btn btn-sm btn-danger" onclick="confirmDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<div class="page-footer">
+  <div class="footer-copyright">
+    Copyright ⓒ <a href="https://blog.naver.com/rusiper1000" target="_blank" rel="noopener">타락천사의 경제적 자유 도전기</a> all rights reserved
+  </div>
+  <div class="footer-sub">
+    이 파일은 인터넷 없이도 열 수 있는 단일 HTML 파일입니다. Chrome에서 더블클릭해 사용하세요. &nbsp;·&nbsp;
+    <a href="https://blog.naver.com/rusiper1000" target="_blank" rel="noopener">블로그 바로가기 →</a>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- FAB -->
+<div class="fab">
+  <button class="fab-btn fab-main" onclick="downloadCapture()">
+    📸 이미지 저장
+  </button>
+</div>
+
+<!-- EXCEL IMPORT MODAL -->
+<div id="excelModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-title"><span class="dot"></span>엑셀 파일 미리보기</div>
+    <div class="modal-desc">아래 데이터를 확인하고 <strong>적용</strong>하면 현재 기록이 교체됩니다. 필요한 컬럼: <strong>일자(date)</strong>, <strong>금액(amount)</strong>, <strong>BTC 가격(btcPrice)</strong>. 수량(quantity) 컬럼은 선택사항입니다.</div>
+    <div id="excelModalWarn" class="modal-warn hidden"></div>
+    <div id="excelModalStat" class="modal-stat"></div>
+    <div class="modal-preview">
+      <table>
+        <thead id="excelPreviewHead"></thead>
+        <tbody id="excelPreviewBody"></tbody>
+      </table>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeExcelModal()">취소</button>
+      <button id="excelApplyBtn" class="btn btn-primary btn-sm" onclick="applyExcelImport()">✅ 적용하기</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+const ORIGINAL_ROWS = [{"date": "2021-07-18", "amount": 100000, "quantity": 0.00265512, "btcPrice": 37640000}, {"date": "2021-07-25", "amount": 100000, "quantity": 0.00250475, "btcPrice": 39934000}, {"date": "2021-08-01", "amount": 100000, "quantity": 0.00206932, "btcPrice": 48325000}, {"date": "2021-08-08", "amount": 100000, "quantity": 0.00199612, "btcPrice": 50237000}, {"date": "2021-08-15", "amount": 100000, "quantity": 0.00184212, "btcPrice": 54285000}, {"date": "2021-08-22", "amount": 100000, "quantity": 0.00172508, "btcPrice": 57968000}, {"date": "2021-08-29", "amount": 100000, "quantity": 0.00174593, "btcPrice": 57277000}, {"date": "2021-09-05", "amount": 100000, "quantity": 0.00172908, "btcPrice": 57834000}, {"date": "2021-09-12", "amount": 100000, "quantity": 0.00181649, "btcPrice": 55051000}, {"date": "2021-09-19", "amount": 100000, "quantity": 0.0017077, "btcPrice": 58558000}, {"date": "2021-09-26", "amount": 100000, "quantity": 0.00190927, "btcPrice": 52370000}, {"date": "2021-10-03", "amount": 100000, "quantity": 0.00171306, "btcPrice": 58375000}, {"date": "2021-10-10", "amount": 100000, "quantity": 0.00149965, "btcPrice": 66680000}, {"date": "2021-10-17", "amount": 100000, "quantity": 0.00133584, "btcPrice": 74859000}, {"date": "2021-10-24", "amount": 100000, "quantity": 0.00133155, "btcPrice": 75043000}, {"date": "2021-10-31", "amount": 100000, "quantity": 0.00136245, "btcPrice": 73325000}, {"date": "2021-11-07", "amount": 100000, "quantity": 0.00133983, "btcPrice": 74636000}, {"date": "2021-11-14", "amount": 100000, "quantity": 0.00128638, "btcPrice": 77737000}, {"date": "2021-11-21", "amount": 100000, "quantity": 0.00135602, "btcPrice": 73745000}, {"date": "2021-11-28", "amount": 100000, "quantity": 0.00143725, "btcPrice": 69725000}, {"date": "2021-12-05", "amount": 100000, "quantity": 0.00162324, "btcPrice": 61605000}, {"date": "2021-12-12", "amount": 100000, "quantity": 0.001638, "btcPrice": 60999000}, {"date": "2021-12-18", "amount": 100000, "quantity": 0.00171632, "btcPrice": 58264000}, {"date": "2021-12-26", "amount": 100000, "quantity": 0.00163267, "btcPrice": 61249000}, {"date": "2022-01-02", "amount": 100000, "quantity": 0.0017301, "btcPrice": 57800000}, {"date": "2022-01-09", "amount": 100000, "quantity": 0.00191772, "btcPrice": 52100000}, {"date": "2022-01-16", "amount": 100000, "quantity": 0.00191, "btcPrice": 52306000}, {"date": "2022-01-23", "amount": 100000, "quantity": 0.00230861, "btcPrice": 43298000}, {"date": "2022-01-30", "amount": 100000, "quantity": 0.00211304, "btcPrice": 47325000}, {"date": "2022-02-06", "amount": 100000, "quantity": 0.00196078, "btcPrice": 51000000}, {"date": "2022-02-13", "amount": 100000, "quantity": 0.00193956, "btcPrice": 51558000}, {"date": "2022-02-20", "amount": 100000, "quantity": 0.00204214, "btcPrice": 48948000}, {"date": "2022-02-27", "amount": 100000, "quantity": 0.00208398, "btcPrice": 47985000}, {"date": "2022-03-06", "amount": 100000, "quantity": 0.00205178, "btcPrice": 48733000}, {"date": "2022-03-13", "amount": 100000, "quantity": 0.00205187, "btcPrice": 48736000}, {"date": "2022-03-20", "amount": 100000, "quantity": 0.0019561, "btcPrice": 51122000}, {"date": "2022-03-27", "amount": 100000, "quantity": 0.00185832, "btcPrice": 53812000}, {"date": "2022-04-03", "amount": 100000, "quantity": 0.00177251, "btcPrice": 56417000}, {"date": "2022-04-10", "amount": 100000, "quantity": 0.00188075, "btcPrice": 53169000}, {"date": "2022-04-17", "amount": 100000, "quantity": 0.00212106, "btcPrice": 50713000}, {"date": "2022-04-24", "amount": 100000, "quantity": 0.00199131, "btcPrice": 50218000}, {"date": "2022-05-01", "amount": 100000, "quantity": 0.0020036, "btcPrice": 49910000}, {"date": "2022-05-08", "amount": 100000, "quantity": 0.00213807, "btcPrice": 46771000}, {"date": "2022-05-15", "amount": 100000, "quantity": 0.00248836, "btcPrice": 40187000}, {"date": "2022-05-22", "amount": 100000, "quantity": 0.00263365, "btcPrice": 37970000}, {"date": "2022-05-29", "amount": 100000, "quantity": 0.00270102, "btcPrice": 37023000}, {"date": "2022-06-05", "amount": 100000, "quantity": 0.002631, "btcPrice": 38003000}, {"date": "2022-06-12", "amount": 100000, "quantity": 0.00269113, "btcPrice": 37159000}, {"date": "2022-06-19", "amount": 100000, "quantity": 0.00402236, "btcPrice": 24861000}, {"date": "2022-06-26", "amount": 100000, "quantity": 0.0035913, "btcPrice": 27840000}, {"date": "2022-07-03", "amount": 100000, "quantity": 0.00391435, "btcPrice": 25547000}, {"date": "2022-07-10", "amount": 100000, "quantity": 0.00355012, "btcPrice": 28168000}, {"date": "2022-07-17", "amount": 100000, "quantity": 0.00358551, "btcPrice": 27890000}, {"date": "2022-07-24", "amount": 100000, "quantity": 0.0033548, "btcPrice": 29807000}, {"date": "2022-07-31", "amount": 100000, "quantity": 0.0031874, "btcPrice": 31373000}, {"date": "2022-08-07", "amount": 100000, "quantity": 0.00325626, "btcPrice": 30710000}, {"date": "2022-08-14", "amount": 100000, "quantity": 0.00306823, "btcPrice": 32592000}, {"date": "2022-08-21", "amount": 100000, "quantity": 0.00342125, "btcPrice": 29229000}, {"date": "2022-08-28", "amount": 100000, "quantity": 0.00362108, "btcPrice": 27610000}, {"date": "2022-09-04", "amount": 100000, "quantity": 0.00364963, "btcPrice": 27400000}, {"date": "2022-09-11", "amount": 100000, "quantity": 0.0033566, "btcPrice": 29792000}, {"date": "2022-09-18", "amount": 100000, "quantity": 0.00354534, "btcPrice": 28250000}, {"date": "2022-09-25", "amount": 100000, "quantity": 0.00368962, "btcPrice": 27103000}, {"date": "2022-10-02", "amount": 100000, "quantity": 0.00359006, "btcPrice": 27850000}, {"date": "2022-10-09", "amount": 100000, "quantity": 0.00359984, "btcPrice": 27779000}, {"date": "2022-10-16", "amount": 100000, "quantity": 0.00363147, "btcPrice": 27537000}, {"date": "2022-10-23", "amount": 100000, "quantity": 0.00362148, "btcPrice": 27613000}, {"date": "2022-10-30", "amount": 100000, "quantity": 0.0034389, "btcPrice": 29079000}, {"date": "2022-11-06", "amount": 100000, "quantity": 0.00336111, "btcPrice": 29752000}, {"date": "2022-11-13", "amount": 100000, "quantity": 0.0042854, "btcPrice": 23335000}, {"date": "2022-11-20", "amount": 100000, "quantity": 0.00431723, "btcPrice": 23163000}, {"date": "2022-11-27", "amount": 100000, "quantity": 0.00440936, "btcPrice": 22679000}, {"date": "2022-12-04", "amount": 100000, "quantity": 0.00440936, "btcPrice": 22878000}, {"date": "2022-12-11", "amount": 100000, "quantity": 0.00438135, "btcPrice": 22824000}, {"date": "2022-12-18", "amount": 100000, "quantity": 0.00450714, "btcPrice": 22187000}, {"date": "2022-12-25", "amount": 100000, "quantity": 0.00455435, "btcPrice": 21957000}, {"date": "2023-01-01", "amount": 100000, "quantity": 0.00475217, "btcPrice": 21042000}, {"date": "2023-01-08", "amount": 100000, "quantity": 0.00464123, "btcPrice": 21546000}, {"date": "2023-01-15", "amount": 100000, "quantity": 0.00383936, "btcPrice": 26034000}, {"date": "2023-01-22", "amount": 100000, "quantity": 0.00351308, "btcPrice": 28567000}, {"date": "2023-01-29", "amount": 100000, "quantity": 0.00344174, "btcPrice": 29055000}, {"date": "2023-02-05", "amount": 100000, "quantity": 0.0033965, "btcPrice": 29442000}, {"date": "2023-02-12", "amount": 100000, "quantity": 0.00353756, "btcPrice": 28268000}, {"date": "2023-02-19", "amount": 100000, "quantity": 0.00314594, "btcPrice": 31788000}, {"date": "2023-02-26", "amount": 100000, "quantity": 0.00323645, "btcPrice": 30898000}, {"date": "2023-03-05", "amount": 100000, "quantity": 0.00334907, "btcPrice": 29859000}, {"date": "2023-03-12", "amount": 100000, "quantity": 0.00362328, "btcPrice": 27600000}, {"date": "2023-03-19", "amount": 100000, "quantity": 0.00277131, "btcPrice": 36084000}, {"date": "2023-03-26", "amount": 100000, "quantity": 0.00272116, "btcPrice": 36726000}, {"date": "2023-04-02", "amount": 100000, "quantity": 0.00265547, "btcPrice": 37658000}, {"date": "2023-04-09", "amount": 100000, "quantity": 0.00269665, "btcPrice": 37083000}, {"date": "2023-04-16", "amount": 100000, "quantity": 0.00250915, "btcPrice": 39854000}, {"date": "2023-04-23", "amount": 100000, "quantity": 0.00271326, "btcPrice": 36856000}, {"date": "2023-04-30", "amount": 100000, "quantity": 0.00256601, "btcPrice": 38970000}, {"date": "2023-05-07", "amount": 100000, "quantity": 0.00259268, "btcPrice": 38570000}, {"date": "2023-05-14", "amount": 100000, "quantity": 0.0027368, "btcPrice": 36538000}, {"date": "2023-05-21", "amount": 100000, "quantity": 0.00274954, "btcPrice": 36370000}, {"date": "2023-05-28", "amount": 100000, "quantity": 0.00279524, "btcPrice": 35775000}, {"date": "2023-06-04", "amount": 100000, "quantity": 0.00279524, "btcPrice": 35775000}, {"date": "2023-06-11", "amount": 100000, "quantity": 0.00290107, "btcPrice": 34469000}, {"date": "2023-06-18", "amount": 100000, "quantity": 0.00286976, "btcPrice": 34846000}, {"date": "2023-06-25", "amount": 100000, "quantity": 0.00245736, "btcPrice": 40694000}, {"date": "2023-07-02", "amount": 100000, "quantity": 0.00245182, "btcPrice": 40784000}, {"date": "2023-07-09", "amount": 100000, "quantity": 0.00249066, "btcPrice": 40150000}, {"date": "2023-07-16", "amount": 100000, "quantity": 0.00256811, "btcPrice": 38939000}, {"date": "2023-07-23", "amount": 100000, "quantity": 0.00258271, "btcPrice": 38719000}, {"date": "2023-07-30", "amount": 100000, "quantity": 0.00263622, "btcPrice": 37933000}, {"date": "2023-08-06", "amount": 100000, "quantity": 0.00259672, "btcPrice": 38510000}, {"date": "2023-08-13", "amount": 100000, "quantity": 0.00254563, "btcPrice": 39283000}, {"date": "2023-08-20", "amount": 100000, "quantity": 0.0027700800000000003, "btcPrice": 36100000}, {"date": "2023-08-27", "amount": 100000, "quantity": 0.00282318, "btcPrice": 35421000}, {"date": "2023-09-03", "amount": 100000, "quantity": 0.00284002, "btcPrice": 35211000}, {"date": "2023-09-10", "amount": 100000, "quantity": 0.00283679, "btcPrice": 35251000}, {"date": "2023-09-17", "amount": 100000, "quantity": 0.0027804, "btcPrice": 35966000}, {"date": "2023-09-24", "amount": 100000, "quantity": 0.00277909, "btcPrice": 35983000}, {"date": "2023-10-01", "amount": 100000, "quantity": 0.00272873, "btcPrice": 36647000}, {"date": "2023-10-08", "amount": 100000, "quantity": 0.00263726, "btcPrice": 37918000}, {"date": "2023-10-15", "amount": 100000, "quantity": 0.00272138, "btcPrice": 36746000}, {"date": "2023-10-22", "amount": 100000, "quantity": 0.00246822, "btcPrice": 40515000}, {"date": "2023-10-29", "amount": 100000, "quantity": 0.00215507, "btcPrice": 46402000}, {"date": "2023-11-05", "amount": 100000, "quantity": 0.00213201, "btcPrice": 46904000}, {"date": "2023-11-12", "amount": 100000, "quantity": 0.00202445, "btcPrice": 49396000}, {"date": "2023-11-19", "amount": 100000, "quantity": 0.0020323900000000002, "btcPrice": 49203000}, {"date": "2023-11-26", "amount": 100000, "quantity": 0.001978, "btcPrice": 50556000}, {"date": "2023-12-03", "amount": 100000, "quantity": 0.00190291, "btcPrice": 52551000}, {"date": "2023-12-10", "amount": 100000, "quantity": 0.00166389, "btcPrice": 60100000}, {"date": "2023-12-17", "amount": 100000, "quantity": 0.00172321, "btcPrice": 58031000}, {"date": "2023-12-24", "amount": 100000, "quantity": 0.00168327, "btcPrice": 59401000}, {"date": "2023-12-31", "amount": 100000, "quantity": 0.00176292, "btcPrice": 56725000}, {"date": "2024-01-07", "amount": 100000, "quantity": 0.00168628, "btcPrice": 59302000}, {"date": "2024-01-14", "amount": 100000, "quantity": 0.00169454, "btcPrice": 59012000}, {"date": "2024-01-21", "amount": 100000, "quantity": 0.00173454, "btcPrice": 57652000}, {"date": "2024-01-28", "amount": 100000, "quantity": 0.00172384, "btcPrice": 58010000}, {"date": "2024-02-04", "amount": 100000, "quantity": 0.00168523, "btcPrice": 59339000}, {"date": "2024-02-11", "amount": 100000, "quantity": 0.00155019, "btcPrice": 64507000}, {"date": "2024-02-18", "amount": 100000, "quantity": 0.00139538, "btcPrice": 71659000}, {"date": "2024-02-25", "amount": 100000, "quantity": 0.0014035, "btcPrice": 71250000}, {"date": "2024-03-03", "amount": 100000, "quantity": 0.0011533, "btcPrice": 86707000}, {"date": "2024-03-10", "amount": 100000, "quantity": 0.00104373, "btcPrice": 95810000}, {"date": "2024-03-17", "amount": 100000, "quantity": 0.00101538, "btcPrice": 98365000}, {"date": "2024-03-24", "amount": 100000, "quantity": 0.00106198, "btcPrice": 94163000}, {"date": "2024-03-31", "amount": 100000, "quantity": 0.00099923, "btcPrice": 100077000}, {"date": "2024-04-07", "amount": 100000, "quantity": 0.00101321, "btcPrice": 98696000}, {"date": "2024-04-14", "amount": 100000, "quantity": 0.00100366, "btcPrice": 99634000}, {"date": "2024-04-21", "amount": 100000, "quantity": 0.00106575, "btcPrice": 93830000}, {"date": "2024-04-28", "amount": 100000, "quantity": 0.0010949, "btcPrice": 91328000}, {"date": "2024-05-05", "amount": 100000, "quantity": 0.00110524, "btcPrice": 90478000}, {"date": "2024-05-12", "amount": 100000, "quantity": 0.00116415, "btcPrice": 85899000}, {"date": "2024-05-19", "amount": 100000, "quantity": 0.00107627, "btcPrice": 92912000}, {"date": "2024-05-26", "amount": 100000, "quantity": 0.00104159, "btcPrice": 96007000}, {"date": "2024-06-02", "amount": 100000, "quantity": 0.00105572, "btcPrice": 94722000}, {"date": "2024-06-09", "amount": 100000, "quantity": 0.00101902, "btcPrice": 98133000}, {"date": "2024-06-16", "amount": 100000, "quantity": 0.00106693, "btcPrice": 93726000}, {"date": "2024-06-23", "amount": 100000, "quantity": 0.00109936, "btcPrice": 90962000}, {"date": "2024-06-30", "amount": 100000, "quantity": 0.00116486, "btcPrice": 85847000}, {"date": "2024-07-07", "amount": 100000, "quantity": 0.001206, "btcPrice": 82917000}, {"date": "2024-07-14", "amount": 100000, "quantity": 0.00121421, "btcPrice": 82358000}, {"date": "2024-07-21", "amount": 100000, "quantity": 0.00106243, "btcPrice": 94123000}, {"date": "2024-07-28", "amount": 100000, "quantity": 0.00104516, "btcPrice": 95670000}, {"date": "2024-08-04", "amount": 100000, "quantity": 0.00116524, "btcPrice": 85818000}, {"date": "2024-08-11", "amount": 100000, "quantity": 0.00116551, "btcPrice": 85795000}, {"date": "2024-08-18", "amount": 100000, "quantity": 0.00120971, "btcPrice": 82700000}, {"date": "2024-08-25", "amount": 100000, "quantity": 0.00116934, "btcPrice": 85556000}, {"date": "2024-09-01", "amount": 100000, "quantity": 0.00124481, "btcPrice": 80337000}, {"date": "2024-09-08", "amount": 100000, "quantity": 0.00136351, "btcPrice": 73258000}, {"date": "2024-09-15", "amount": 100000, "quantity": 0.00124082, "btcPrice": 80606000}, {"date": "2024-09-22", "amount": 100000, "quantity": 0.00118586, "btcPrice": 84332000}, {"date": "2024-09-29", "amount": 100000, "quantity": 0.00115643, "btcPrice": 86465000}, {"date": "2024-10-06", "amount": 100000, "quantity": 0.00119126, "btcPrice": 83951000}, {"date": "2024-10-13", "amount": 100000, "quantity": 0.00117565, "btcPrice": 85043000}, {"date": "2024-10-20", "amount": 100000, "quantity": 0.00107096, "btcPrice": 93380000}, {"date": "2024-10-27", "amount": 100000, "quantity": 0.00106417, "btcPrice": 93990000}, {"date": "2024-11-03", "amount": 100000, "quantity": 0.0010271, "btcPrice": 97318000}, {"date": "2024-11-10", "amount": 100000, "quantity": 0.00094205, "btcPrice": 106155000}, {"date": "2024-11-17", "amount": 100000, "quantity": 0.00078913, "btcPrice": 126768000}, {"date": "2024-11-24", "amount": 100000, "quantity": 0.00073557, "btcPrice": 136000000}, {"date": "2024-12-01", "amount": 100000, "quantity": 0.00074664, "btcPrice": 133949000}, {"date": "2024-12-08", "amount": 100000, "quantity": 0.00072018, "btcPrice": 138887000}, {"date": "2024-12-15", "amount": 100000, "quantity": 0.00068578, "btcPrice": 145817000}, {"date": "2024-12-22", "amount": 100000, "quantity": 0.00067763, "btcPrice": 147619000}, {"date": "2024-12-29", "amount": 100000, "quantity": 0.00070147, "btcPrice": 142558000}, {"date": "2025-01-05", "amount": 100000, "quantity": 0.0006894, "btcPrice": 145093000}, {"date": "2025-01-12", "amount": 100000, "quantity": 0.00070631, "btcPrice": 141569000}, {"date": "2025-01-19", "amount": 100000, "quantity": 0.00064176, "btcPrice": 155862000}, {"date": "2025-01-26", "amount": 100000, "quantity": 0.00063631, "btcPrice": 157225000}, {"date": "2025-02-02", "amount": 100000, "quantity": 0.00063897, "btcPrice": 156499000}, {"date": "2025-02-09", "amount": 100000, "quantity": 0.00067286, "btcPrice": 148680000}, {"date": "2025-02-16", "amount": 100000, "quantity": 0.00067817, "btcPrice": 147476000}, {"date": "2025-02-23", "amount": 100000, "quantity": 0.00070243, "btcPrice": 142399000}, {"date": "2025-03-02", "amount": 100000, "quantity": 0.00077897, "btcPrice": 128380000}, {"date": "2025-03-09", "amount": 100000, "quantity": 0.00077623, "btcPrice": 128950000}, {"date": "2025-03-16", "amount": 100000, "quantity": 0.00080576, "btcPrice": 124070000}, {"date": "2025-03-23", "amount": 100000, "quantity": 0.00080383, "btcPrice": 124425000}, {"date": "2025-03-30", "amount": 100000, "quantity": 0.0008117, "btcPrice": 123206000}, {"date": "2025-04-06", "amount": 100000, "quantity": 0.00081263, "btcPrice": 123079000}, {"date": "2025-04-13", "amount": 100000, "quantity": 0.00080837, "btcPrice": 123684000}, {"date": "2025-04-20", "amount": 100000, "quantity": 0.00081322, "btcPrice": 123029000}, {"date": "2025-04-27", "amount": 100000, "quantity": 0.00073078, "btcPrice": 136883000}, {"date": "2025-05-04", "amount": 100000, "quantity": 0.00072454, "btcPrice": 138079000}, {"date": "2025-05-11", "amount": 100000, "quantity": 0.00069475, "btcPrice": 143919000}, {"date": "2025-05-18", "amount": 100000, "quantity": 0.00068164, "btcPrice": 146721000}, {"date": "2025-05-25", "amount": 100000, "quantity": 0.00066202, "btcPrice": 151082000}, {"date": "2025-06-01", "amount": 100000, "quantity": 0.00067629, "btcPrice": 147796000}, {"date": "2025-06-08", "amount": 100000, "quantity": 0.00068108, "btcPrice": 146860000}, {"date": "2025-06-15", "amount": 100000, "quantity": 0.00068234, "btcPrice": 146544000}, {"date": "2025-06-22", "amount": 100000, "quantity": 0.00070376, "btcPrice": 142018000}, {"date": "2025-06-29", "amount": 100000, "quantity": 0.00067917, "btcPrice": 147233000}, {"date": "2025-07-06", "amount": 100000, "quantity": 0.00067464, "btcPrice": 148250000}, {"date": "2025-07-13", "amount": 100000, "quantity": 0.00062568, "btcPrice": 159819000}, {"date": "2025-07-20", "amount": 100000, "quantity": 0.00061904, "btcPrice": 161533000}, {"date": "2025-07-27", "amount": 100000, "quantity": 0.00062147, "btcPrice": 160887000}, {"date": "2025-08-03", "amount": 100000, "quantity": 0.00063225, "btcPrice": 158158000}, {"date": "2025-08-10", "amount": 100000, "quantity": 0.0006244, "btcPrice": 160178000}, {"date": "2025-08-17", "amount": 100000, "quantity": 0.00061312, "btcPrice": 163082000}, {"date": "2025-08-24", "amount": 100000, "quantity": 0.00062648, "btcPrice": 159648000}, {"date": "2025-08-31", "amount": 100000, "quantity": 0.00066024, "btcPrice": 151474000}, {"date": "2025-09-07", "amount": 100000, "quantity": 0.00064808, "btcPrice": 154310000}, {"date": "2025-09-14", "amount": 100000, "quantity": 0.00062301, "btcPrice": 160541000}, {"date": "2025-09-21", "amount": 100000, "quantity": 0.00061596, "btcPrice": 162363000}, {"date": "2025-09-28", "amount": 100000, "quantity": 0.00063439, "btcPrice": 157632000}, {"date": "2025-10-05", "amount": 100000, "quantity": 0.00057189, "btcPrice": 174849000}, {"date": "2025-10-12", "amount": 100000, "quantity": 0.00058656, "btcPrice": 170511000}, {"date": "2025-10-19", "amount": 100000, "quantity": 0.00061126, "btcPrice": 163588000}, {"date": "2025-10-26", "amount": 100000, "quantity": 0.00060012, "btcPrice": 166630000}, {"date": "2025-11-02", "amount": 100000, "quantity": 0.00060944, "btcPrice": 164090000}, {"date": "2025-11-09", "amount": 100000, "quantity": 0.00065424, "btcPrice": 152900000}, {"date": "2025-11-16", "amount": 100000, "quantity": 0.00069279, "btcPrice": 144380000}, {"date": "2025-11-23", "amount": 100000, "quantity": 0.000783, "btcPrice": 127780000}, {"date": "2025-11-30", "amount": 100000, "quantity": 0.00073519, "btcPrice": 136072000}, {"date": "2025-12-07", "amount": 100000, "quantity": 0.00074777, "btcPrice": 133581000}, {"date": "2025-12-14", "amount": 100000, "quantity": 0.0007429, "btcPrice": 134674000}, {"date": "2025-12-21", "amount": 100000, "quantity": 0.00076016, "btcPrice": 131595000}, {"date": "2025-12-28", "amount": 100000, "quantity": 0.00078071, "btcPrice": 128114000}, {"date": "2026-01-04", "amount": 100000, "quantity": 0.00076332, "btcPrice": 131007000}, {"date": "2026-01-11", "amount": 100000, "quantity": 0.0007492, "btcPrice": 133538000}, {"date": "2026-01-18", "amount": 100000, "quantity": 0.00071076, "btcPrice": 140621000}, {"date": "2026-01-25", "amount": 100000, "quantity": 0.00075833, "btcPrice": 131922000}, {"date": "2026-02-01", "amount": 100000, "quantity": 0.00085927, "btcPrice": 116362000}, {"date": "2026-02-08", "amount": 100000, "quantity": 0.0009752, "btcPrice": 102422000}, {"date": "2026-02-15", "amount": 100000, "quantity": 0.00097126, "btcPrice": 102976000}, {"date": "2026-02-22", "amount": 100000, "quantity": 0.00100023, "btcPrice": 99937000}, {"date": "2026-03-01", "amount": 100000, "quantity": 0.00102116, "btcPrice": 97918000}, {"date": "2026-03-08", "amount": 100000, "quantity": 0.00100463, "btcPrice": 99641000}];
+
+const STORAGE_KEY = 'btc_saving_dashboard_exact_qty_v1';
+const won = n => '₩' + Math.round(Number(n||0)).toLocaleString('ko-KR');
+const btcFmt = n => Number(n||0).toFixed(8) + ' BTC';
+const btcNum = n => Number(n||0).toFixed(8);
+const pct = n => (Number(n||0) >= 0 ? '+' : '') + Number(n||0).toFixed(2) + '%';
+const dateFmt = d => String(d||'').replaceAll('-','.');
+const maybeWon = n => (Number(n||0)<0?'-':'') + '₩' + Math.abs(Math.round(Number(n||0))).toLocaleString('ko-KR');
+let rows = [];
+let searchKeyword = '';
+let _chartRangeYears = 0;   // 0=전체
+let _currentPage = 1;
+const PAGE_SIZE = 50;
+let _pendingDelIdx = -1;
+
+function showStatus(msg, isGood=true) {
+  const el = document.getElementById('saveStatus');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = isGood ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)';
+  el.style.borderColor = isGood ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)';
+  el.style.color = isGood ? 'var(--good)' : 'var(--bad)';
+  clearTimeout(el._timeout);
+  el._timeout = setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    if (saved && Array.isArray(saved.rows) && saved.rows.length) {
+      rows = saved.rows.filter(r => {
+        if (!r || !r.date) return false;
+        const t = new Date(String(r.date)+'T00:00:00').getTime();
+        const today = new Date(); today.setHours(0,0,0,0);
+        return !Number.isNaN(t) && t <= today.getTime();
+      }).map(r => {
+        const d = String(r.date).slice(0,10);
+        const original = ORIGINAL_ROWS.find(x => x.date === d);
+        return { date:d, amount:Number(r.amount||0), btcPrice:Number(r.btcPrice||0),
+          quantity: r.quantity!=null && r.quantity!=='' ? Number(r.quantity) : (original ? Number(original.quantity||0) : null) };
+      });
+      document.getElementById('blogTitle').value = saved.blogTitle || '비트코인 저축 현황';
+      return;
+    }
+  } catch(e) {}
+  rows = JSON.parse(JSON.stringify(ORIGINAL_ROWS));
+  document.getElementById('blogTitle').value = '비트코인 저축 현황';
+}
+
+function persist() {
+  try {
+    const lastPrice = rows.length ? Number(rows[rows.length-1].btcPrice||0) : 0;
+    const payload = JSON.stringify({ rows, currentPrice:lastPrice, blogTitle:document.getElementById('blogTitle').value||'' });
+    localStorage.setItem(STORAGE_KEY, payload);
+  } catch(e) {
+    // QuotaExceededError: localStorage 용량 초과
+    if (e && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e.code === 22)) {
+      showStatus('⚠️ 저장 공간이 부족합니다. 전체 백업 후 브라우저 캐시를 정리해 주세요.', false);
+    } else {
+      showStatus('⚠️ 자동 저장에 실패했습니다. 전체 백업을 권장합니다.', false);
+    }
+    console.error('persist() 실패:', e);
+  }
+}
+
+function normalizeRows(inputRows) {
+  const sorted = inputRows.filter(r=>r&&r.date).map(r=>({
+    date:String(r.date).slice(0,10), amount:Number(r.amount||0),
+    btcPrice:Number(r.btcPrice||0),
+    quantity: r.quantity!=null && r.quantity!=='' && Number.isFinite(Number(r.quantity)) ? Number(r.quantity) : null
+  })).sort((a,b)=>a.date.localeCompare(b.date));
+  let cumAmt=0, cumQty=0;
+  return sorted.map((r,idx)=>{
+    const qty = Number.isFinite(r.quantity) && r.quantity>0 ? r.quantity : (r.btcPrice>0 ? r.amount/r.btcPrice : 0);
+    cumAmt += r.amount; cumQty += qty;
+    const val = cumQty * r.btcPrice;
+    const ret = cumAmt>0 ? ((val-cumAmt)/cumAmt)*100 : 0;
+    return {...r, round:idx+1, quantity:qty, cumulativeAmount:cumAmt, cumulativeQuantity:cumQty, valuation:val, returnRate:ret};
+  });
+}
+
+function getComputedRows() { return normalizeRows(rows); }
+
+function render() {
+  const computed = getComputedRows();
+  const last = computed.at(-1);
+  const first = computed[0];
+  const currentPrice = last ? Number(last.btcPrice||0) : 0;
+  const totalBtc = last ? last.cumulativeQuantity : 0;
+  const totalInvested = last ? last.cumulativeAmount : 0;
+  const currentValue = totalBtc * currentPrice;
+  const pnl = currentValue - totalInvested;
+  const currentReturn = totalInvested>0 ? (pnl/totalInvested)*100 : 0;
+  const avg = totalBtc>0 ? totalInvested/totalBtc : 0;
+
+  // CAGR 계산 (첫 매수일 기준 연환산 수익률)
+  let cagrText = '';
+  if (first && last && totalInvested > 0 && currentValue > 0) {
+    const t0 = new Date(first.date + 'T00:00:00').getTime();
+    const t1 = new Date(last.date  + 'T00:00:00').getTime();
+    const years = (t1 - t0) / (365.25 * 24 * 3600 * 1000);
+    if (years >= 0.1) {
+      const cagr = (Math.pow(currentValue / totalInvested, 1 / years) - 1) * 100;
+      cagrText = ` / 연환산 ${cagr >= 0 ? '+' : ''}${cagr.toFixed(1)}%`;
+    }
+  }
+  const blogTitle = document.getElementById('blogTitle').value || '비트코인 저축 현황';
+  const isGood = pnl >= 0;
+
+  // KPI
+  document.getElementById('kpiInvested').textContent = won(totalInvested);
+  document.getElementById('kpiRounds').textContent = computed.length.toLocaleString('ko-KR') + '회차 반영';
+  document.getElementById('kpiBtc').textContent = btcFmt(totalBtc);
+  document.getElementById('kpiValue').textContent = won(currentValue);
+  document.getElementById('kpiPrice').textContent = '기준가: ' + won(currentPrice);
+  document.getElementById('kpiReturn').textContent = pct(currentReturn);
+  const pnlEl = document.getElementById('kpiPnl');
+  pnlEl.textContent = '손익 ' + maybeWon(pnl) + cagrText;
+  pnlEl.className = 'kpi-sub ' + (isGood?'':'bad');
+  // Return card color
+  const retCard = document.getElementById('kpiReturnCard');
+  retCard.className = 'kpi-card k-return' + (isGood ? '' : ' bad');
+
+  // Summary
+  document.getElementById('sumTitle').textContent = blogTitle;
+  document.getElementById('sumStart').textContent = first ? dateFmt(first.date) : '-';
+  document.getElementById('sumEnd').textContent = last ? dateFmt(last.date) : '-';
+  document.getElementById('sumAvg').textContent = won(avg);
+  document.getElementById('sumLast').textContent = last ? won(last.btcPrice) : '-';
+  const spEl = document.getElementById('sumPnl');
+  spEl.textContent = maybeWon(pnl);
+  spEl.className = 's-val ' + (isGood ? 'good' : 'bad');
+
+  // Thumbnail
+  document.getElementById('thumbTitle').textContent = blogTitle;
+  document.getElementById('thumbDateRange').textContent = (first?dateFmt(first.date):'-') + ' ~ ' + (last?dateFmt(last.date):'-');
+  document.getElementById('thumbInvested').textContent = won(totalInvested);
+  document.getElementById('thumbRounds').textContent = computed.length.toLocaleString('ko-KR') + '회차';
+  document.getElementById('thumbBtc').textContent = btcFmt(totalBtc);
+  document.getElementById('thumbValue').textContent = won(currentValue);
+  document.getElementById('thumbPrice').textContent = '기준가 ' + won(currentPrice);
+  document.getElementById('thumbReturn').textContent = pct(currentReturn);
+  document.getElementById('thumbPnl').textContent = '누적 손익 ' + maybeWon(pnl);
+  document.getElementById('thumbAvg').textContent = '평단가 ' + won(avg);
+  document.getElementById('thumbLast').textContent = '최근 매수가 ' + (last?won(last.btcPrice):'-');
+
+  renderChart(computed, _chartRangeYears);
+  renderTable(computed);
+  renderYearSummary(computed);
+  persist();
+  updateGoalStats();
+}
+
+function renderTable(computed) {
+  const tbody = document.getElementById('tbody');
+  const keyword = searchKeyword.trim();
+  const ordered = computed.slice().reverse();
+  const filtered = keyword ? ordered.filter(r=>r.date.includes(keyword)) : ordered;
+
+  // 중복 날짜 감지
+  const dateCnt = {};
+  computed.forEach(r => { dateCnt[r.date] = (dateCnt[r.date]||0)+1; });
+
+  // 페이지네이션 계산
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (_currentPage > totalPages) _currentPage = totalPages;
+  const start = (_currentPage - 1) * PAGE_SIZE;
+  const visible = filtered.slice(start, start + PAGE_SIZE);
+
+  tbody.innerHTML = visible.map(r => {
+    const ri = rows.findIndex(x =>
+      String(x.date).slice(0,10)===r.date &&
+      Number(x.amount)===Number(r.amount) &&
+      Number(x.btcPrice)===Number(r.btcPrice)
+    );
+    const retClass = r.returnRate >= 0 ? 'val-good' : 'val-bad';
+    const isDup = dateCnt[r.date] > 1;
+    // ⑧ 부동소수점 정규화
+    const qtyClean = parseFloat(Number(r.quantity).toFixed(8));
+    return `<tr${isDup?' class="dup-row"':''}>
+      <td><span class="row-num">${r.round}</span></td>
+      <td>
+        <input class="td-input date-input" type="date" value="${r.date}" onchange="updateRow(${ri},'date',this.value)" />
+        ${isDup?'<span class="dup-badge">중복</span>':''}
+      </td>
+      <td class="right"><input class="td-input" type="number" value="${Number(r.amount)}" onchange="updateRow(${ri},'amount',this.value)" /></td>
+      <td class="right"><input class="td-input" type="number" value="${Number(r.btcPrice)}" onchange="updateRow(${ri},'btcPrice',this.value)" /></td>
+      <td class="right"><input class="td-input" type="number" step="0.00000001" value="${qtyClean}" onchange="updateRow(${ri},'quantity',this.value)" /></td>
+      <td class="right"><span class="val-chip">${won(r.cumulativeAmount)}</span></td>
+      <td class="right"><span class="val-chip">${btcNum(r.cumulativeQuantity)}</span></td>
+      <td class="right"><span class="val-chip">${won(r.valuation)}</span></td>
+      <td class="right"><span class="${retClass}">${pct(r.returnRate)}</span></td>
+      <td class="center"><button class="del-btn" title="삭제" onclick="deleteRow(${ri})">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  // 페이지네이션 UI
+  const pgInfo = document.getElementById('pgInfo');
+  const pgBtns = document.getElementById('pgBtns');
+  if (pgInfo) pgInfo.textContent = total ? `${start+1}–${Math.min(start+PAGE_SIZE,total)} / 총 ${total}건` : '0건';
+  if (pgBtns) {
+    let html = `<button class="pg-btn" onclick="goPage(${_currentPage-1})" ${_currentPage<=1?'disabled':''}>‹</button>`;
+    const radius = 2;
+    const pages = new Set([1, totalPages]);
+    for (let i=Math.max(1,_currentPage-radius); i<=Math.min(totalPages,_currentPage+radius); i++) pages.add(i);
+    let prev = 0;
+    [...pages].sort((a,b)=>a-b).forEach(p => {
+      if (prev && p-prev>1) html += '<span class="pg-ellipsis">…</span>';
+      html += `<button class="pg-btn${p===_currentPage?' active':''}" onclick="goPage(${p})">${p}</button>`;
+      prev = p;
+    });
+    html += `<button class="pg-btn" onclick="goPage(${_currentPage+1})" ${_currentPage>=totalPages?'disabled':''}>›</button>`;
+    pgBtns.innerHTML = html;
+  }
+}
+
+function goPage(p) {
+  const computed = getComputedRows();
+  const keyword = searchKeyword.trim();
+  const filtered = keyword ? computed.filter(r=>r.date.includes(keyword)) : computed;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  _currentPage = Math.max(1, Math.min(p, totalPages));
+  renderTable(computed);
+  document.querySelector('.edit-section')?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderChart(allRows, rangeYears=0) {
+  // 기간 필터 적용
+  let rows = allRows;
+  if (rangeYears > 0) {
+    const cutoff = new Date();
+    cutoff.setFullYear(cutoff.getFullYear() - rangeYears);
+    const cutStr = cutoff.toISOString().slice(0,10);
+    rows = allRows.filter(r => r.date >= cutStr);
+  }
+  const svg = document.getElementById('chart');
+  const tip = document.getElementById('chartTip');
+  const W=760,H=360,L=70,R=24,T=14,B=56;
+  const innerW=W-L-R, innerH=H-T-B;
+  if(!rows.length){svg.innerHTML='';return;}
+  const maxY = Math.max(...rows.map(r=>Math.max(r.cumulativeAmount,r.valuation)),1)*1.08;
+  // 평단가: 전체 누적 기준 (필터와 무관)
+  const lastAll = allRows.at(-1);
+  const avgPrice = lastAll && lastAll.cumulativeQuantity > 0
+    ? lastAll.cumulativeAmount / lastAll.cumulativeQuantity : 0;
+  const x = i => L + (rows.length===1 ? innerW/2 : (i/(rows.length-1))*innerW);
+  const y = v => T + innerH - (v/maxY)*innerH;
+  const path = key => rows.map((r,i)=>`${i===0?'M':'L'} ${x(i).toFixed(1)} ${y(r[key]).toFixed(1)}`).join(' ');
+  const ticks=5;
+  const fmtDate = s => { const d=new Date(s); if(isNaN(d))return String(s).slice(2).replaceAll('-','.'); return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`; };
+  const fmtMonth = s => { const d=new Date(s); if(isNaN(d))return String(s).slice(2,7).replace('-','.'); return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}`; };
+  let grid='';
+  for(let i=0;i<=ticks;i++){const val=maxY*(i/ticks);const yy=y(val);grid+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#ffffff0d"/><text x="${L-10}" y="${yy+4}" text-anchor="end" font-size="11" font-family="Pretendard,sans-serif" fill="#8892a4">${Math.round(val/10000).toLocaleString('ko-KR')}만</text>`;}
+  let monthLines='';let prevMonth='';
+  rows.forEach((r,i)=>{const key=String(r.date).slice(0,7);if(key!==prevMonth){const xx=x(i);monthLines+=`<line x1="${xx}" y1="${T}" x2="${xx}" y2="${H-B}" stroke="#ffffff08" stroke-dasharray="4 3"/><text x="${Math.min(xx+4,W-R-28)}" y="${T+13}" text-anchor="start" font-size="9.5" font-weight="800" font-family="Pretendard,sans-serif" fill="#5d6880">${fmtMonth(r.date)}</text>`;prevMonth=key;}});
+  const step=Math.max(1,Math.ceil(rows.length/5));const chosen=[];for(let i=0;i<rows.length;i+=step)chosen.push(i);if(!chosen.includes(rows.length-1))chosen.push(rows.length-1);
+  const fi=rows.length-1;const filtered=chosen.filter(i=>i!==fi).slice(0,5);filtered.push(fi);
+  let labels='';filtered.forEach((idx,pos)=>{let xx=x(idx);let anchor='middle';if(pos===0){anchor='start';xx=Math.max(xx,L+2);}else if(pos===filtered.length-1){anchor='end';xx=Math.min(xx,W-R-2);}const isLast=pos===filtered.length-1;labels+=`<text x="${xx}" y="${H-10}" text-anchor="${anchor}" font-size="${isLast?11:10}" font-weight="${isLast?800:600}" font-family="Pretendard,sans-serif" fill="${isLast?'#f7931a':'#8892a4'}">${fmtDate(rows[idx].date)}</text>`;});
+  const hoverRects=rows.map((r,i)=>{const currX=x(i);const prevX=i===0?L:x(i-1);const nextX=i===rows.length-1?(W-R):x(i+1);const left=i===0?L:(prevX+currX)/2;const right=i===rows.length-1?(W-R):(currX+nextX)/2;return `<rect class="hz" data-i="${i}" x="${left}" y="${T}" width="${Math.max(12,right-left)}" height="${innerH}" fill="transparent"></rect>`;}).join('');
+  // 평단가 기준 평가금액 선 (평단가 × 누적수량)
+  const avgLinePath = avgPrice > 0
+    ? rows.map((r,i)=>`${i===0?'M':'L'} ${x(i).toFixed(1)} ${y(r.cumulativeQuantity*avgPrice).toFixed(1)}`).join(' ')
+    : '';
+  const avgLabelY = avgPrice > 0 ? y(rows.at(-1).cumulativeQuantity * avgPrice) : 0;
+
+  svg.innerHTML=`<rect x="0" y="0" width="${W}" height="${H}" fill="transparent" rx="16"/>
+${grid}${monthLines}
+<line x1="${L}" y1="${T}" x2="${L}" y2="${H-B}" stroke="#ffffff14"/>
+<line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="#ffffff14"/>
+<defs>
+<linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity=".18"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/></linearGradient>
+<linearGradient id="gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f7931a" stop-opacity=".18"/><stop offset="100%" stop-color="#f7931a" stop-opacity="0"/></linearGradient>
+</defs>
+<path d="${path('cumulativeAmount')} L ${x(rows.length-1)} ${H-B} L ${L} ${H-B} Z" fill="url(#ga)"/>
+<path d="${path('valuation')} L ${x(rows.length-1)} ${H-B} L ${L} ${H-B} Z" fill="url(#gb)"/>
+<path d="${path('cumulativeAmount')}" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="${path('valuation')}" fill="none" stroke="#f7931a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+${avgLinePath ? `<path d="${avgLinePath}" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-dasharray="6 4" stroke-linecap="round" opacity="0.8"/>
+<text x="${W-R-4}" y="${Math.max(T+12, avgLabelY-7)}" text-anchor="end" font-size="10" font-weight="800" font-family="Pretendard,sans-serif" fill="#a78bfa">평단가</text>` : ''}
+${rows.map((r,i)=>`<circle cx="${x(i)}" cy="${y(r.cumulativeAmount)}" r="${i===rows.length-1?5:2}" fill="#3b82f6" ${i<rows.length-1?'opacity=".6"':''}></circle>`).join('')}
+${rows.map((r,i)=>`<circle cx="${x(i)}" cy="${y(r.valuation)}" r="${i===rows.length-1?6:2}" fill="#f7931a" ${i<rows.length-1?'opacity=".6"':''}></circle>`).join('')}
+<circle cx="${x(rows.length-1)}" cy="${y(rows[rows.length-1].valuation)}" r="12" fill="rgba(247,147,26,.12)"></circle>
+<text x="${Math.min(W-R-2,x(rows.length-1)-8)}" y="${y(rows[rows.length-1].valuation)-14}" text-anchor="end" font-size="10" font-weight="800" font-family="Pretendard,sans-serif" fill="#f7931a">현재</text>
+${labels}${hoverRects}`;
+  svg.querySelectorAll('.hz').forEach(zone=>{
+    zone.addEventListener('mouseenter',()=>{
+      const i=Number(zone.dataset.i);const r=rows[i];const xx=x(i);
+      const old=svg.querySelector('#hg');if(old)old.remove();
+      const g=document.createElementNS('http://www.w3.org/2000/svg','line');
+      g.setAttribute('id','hg');g.setAttribute('x1',xx);g.setAttribute('x2',xx);g.setAttribute('y1',T);g.setAttribute('y2',H-B);
+      g.setAttribute('stroke','#ffffff22');g.setAttribute('stroke-dasharray','4 3');svg.appendChild(g);
+      if(tip){tip.innerHTML=`<div class="ct-date">${fmtDate(r.date)}</div><div class="ct-row"><span class="ct-b">누적 투자금</span><strong>${won(r.cumulativeAmount)}</strong></div><div class="ct-row"><span class="ct-o">당시 평가금액</span><strong>${won(r.valuation)}</strong></div>`;tip.style.display='block';}
+    });
+    zone.addEventListener('mousemove',e=>{if(!tip)return;const wrap=svg.closest('.chart-wrap').getBoundingClientRect();const tw=190;let left=e.clientX-wrap.left+14;let top=e.clientY-wrap.top-14;if(left+tw>wrap.width-8)left=e.clientX-wrap.left-tw-10;if(top<8)top=8;tip.style.left=left+'px';tip.style.top=top+'px';});
+    zone.addEventListener('mouseleave',()=>{const old=svg.querySelector('#hg');if(old)old.remove();if(tip)tip.style.display='none';});
+  });
+}
+
+function toggleThumbOnly() {
+  document.body.classList.toggle('thumb-only');
+  if(document.body.classList.contains('thumb-only')){scrollToThumbnail();}else{window.scrollTo({top:0,behavior:'smooth'});}
+}
+function scrollToThumbnail() {
+  const el=document.getElementById('thumbnailCard');
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function updateRow(index,key,value) {
+  if(index<0)return;
+  if(key==='date'){rows[index][key]=String(value);}
+  else if(key==='quantity'){rows[index][key]=value===''||value===null?null:Number(value);}
+  else{rows[index][key]=Number(value||0);}
+  render();
+}
+function addRow() {
+  const computed=getComputedRows();const last=computed.at(-1);
+  rows.push({date:last?last.date:new Date().toISOString().slice(0,10),amount:100000,btcPrice:last?last.btcPrice:0,quantity:null});
+  render();
+}
+function duplicateLastRow() {
+  const computed=getComputedRows();const last=computed.at(-1);
+  if(!last)return addRow();
+  rows.push({date:last.date,amount:last.amount,btcPrice:last.btcPrice,quantity:null});render();
+}
+function deleteRow(index) {
+  if (index < 0 || index >= rows.length) return;
+  _pendingDelIdx = index;
+  const r = rows[index];
+  document.getElementById('delModalDesc').innerHTML =
+    `<strong style="color:var(--ink)">${r.date}</strong> &nbsp;·&nbsp; ₩${Number(r.amount).toLocaleString('ko-KR')} &nbsp;·&nbsp; 기준가 ${r.btcPrice ? won(r.btcPrice) : '-'}` +
+    `<br><span style="color:#ef4444;font-size:12px;margin-top:6px;display:block">삭제 후 복구할 수 없습니다.</span>`;
+  document.getElementById('delModalBg').classList.add('open');
+}
+function closeDelModal() {
+  document.getElementById('delModalBg').classList.remove('open');
+  _pendingDelIdx = -1;
+}
+function confirmDelete() {
+  if (_pendingDelIdx < 0) return;
+  rows.splice(_pendingDelIdx, 1);
+  _currentPage = 1;
+  closeDelModal();
+  render();
+  showStatus('행을 삭제했습니다.');
+}
+function sortByDate() { rows=rows.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));render(); }
+function resetOriginal() {
+  if(!confirm('원본 데이터로 되돌릴까요? 현재 수정 내용은 사라집니다.'))return;
+  rows=JSON.parse(JSON.stringify(ORIGINAL_ROWS));
+  document.getElementById('blogTitle').value='비트코인 저축 현황';
+  localStorage.removeItem(STORAGE_KEY);render();
+}
+function exportCSV() {
+  const computed=getComputedRows();
+  const headers=['회차','일자','금액','BTC 가격','수량','누적금액','누적수량','당시 평가금액','당시 수익률'];
+  const lines=[headers.join(',')].concat(computed.map(r=>[r.round,r.date,r.amount,r.btcPrice,r.quantity,r.cumulativeAmount,r.cumulativeQuantity,r.valuation,r.returnRate].join(',')));
+  const blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bitcoin-saving-records.csv';a.click();URL.revokeObjectURL(a.href);
+}
+function exportJSON() {
+  const blob=new Blob([JSON.stringify(rows,null,2)],{type:'application/json;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bitcoin-saving-records.json';a.click();URL.revokeObjectURL(a.href);
+}
+function importJSON(file) {
+  const reader=new FileReader();
+  reader.onload=e=>{try{const data=JSON.parse(String(e.target.result||'[]'));if(!Array.isArray(data))throw new Error();
+    rows=data.map(r=>({date:String(r.date||'').slice(0,10),amount:Number(r.amount||0),btcPrice:Number(r.btcPrice||0)})).filter(r=>{if(!r.date)return false;const t=new Date(r.date+'T00:00:00').getTime();const today=new Date();today.setHours(0,0,0,0);return !isNaN(t)&&t<=today.getTime();});render();showStatus('JSON 불러오기 완료');}catch(err){showStatus('JSON 형식이 올바르지 않습니다.',false);}};
+  reader.readAsText(file,'utf-8');
+}
+function addNextWeek() {
+  if(!rows.length){const today=new Date();rows.unshift({date:today.toISOString().slice(0,10),amount:100000,btcPrice:0,quantity:null});render();showStatus('오늘 날짜로 행을 추가했습니다.');return;}
+  const sorted=rows.filter(r=>r&&r.date).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const latest=sorted[0];
+  const d=new Date(String(latest.date)+'T00:00:00');if(!isNaN(d.getTime()))d.setDate(d.getDate()+7);
+  const nextDate=d.toISOString().slice(0,10);
+  if(rows.some(r=>String(r.date)===nextDate)){showStatus('해당 날짜 기록이 이미 있습니다.',false);return;}
+  rows.unshift({date:nextDate,amount:Number(latest.amount||100000),btcPrice:Number(latest.btcPrice||0),quantity:null});
+  render();showStatus(`${nextDate} 기록을 자동 추가했습니다.`);
+}
+function formatLiveTime(d) {return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+async function fetchLivePrice() {
+  const priceEl=document.getElementById('livePriceVal');
+  const timeEl=document.getElementById('livePriceTime');
+  try {
+    priceEl.textContent='조회 중...';
+    const res=await fetch('https://api.upbit.com/v1/ticker?markets=KRW-BTC',{cache:'no-store'});
+    if(!res.ok)throw new Error();
+    const data=await res.json();
+    const price=Array.isArray(data)&&data[0]?Number(data[0].trade_price||0):0;
+    if(!price)throw new Error();
+    priceEl.textContent=won(price);
+    timeEl.textContent=formatLiveTime(new Date());
+    showStatus('실시간 BTC 가격 조회 완료 (참고용, 수익률 계산에는 미반영)');
+  } catch(err) {
+    priceEl.textContent='조회 실패';timeEl.textContent='';
+    showStatus('실시간 가격 조회에 실패했습니다.',false);
+  }
+}
+function exportBackup() {
+  let goalVal = '';
+  try { goalVal = localStorage.getItem(STORAGE_KEY+'_goal') || ''; } catch(e) {}
+  const payload = {
+    version:'btc-saving-dashboard-backup-v1',
+    exportedAt:new Date().toISOString(),
+    blogTitle:document.getElementById('blogTitle').value||'비트코인 저축 현황',
+    currentPrice:Number(rows.at(-1)?.btcPrice||0),
+    btcGoal: goalVal,
+    rows
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='bitcoin-saving-backup.json';document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();const now=new Date();const ts=formatLiveTime(now);localStorage.setItem('btc_dashboard_last_backup',ts);const lbl=document.getElementById('backupTimeLabel');if(lbl)lbl.textContent='마지막 백업: '+ts;},800);
+  showStatus('백업 파일 다운로드를 시작했습니다.');
+}
+function importBackup(file) {
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try {
+      const data=JSON.parse(String(e.target.result||'{}'));
+      if(!data||!Array.isArray(data.rows))throw new Error();
+      rows=data.rows.map(r=>({
+        date:String(r.date||'').slice(0,10),
+        amount:Number(r.amount||0),
+        btcPrice:Number(r.btcPrice||0),
+        quantity:r.quantity!=null&&r.quantity!==''?Number(r.quantity):null
+      })).filter(r=>r.date);
+      document.getElementById('blogTitle').value=String(data.blogTitle||'비트코인 저축 현황');
+      // ⑤ 목표 BTC 복원
+      if (data.btcGoal != null && data.btcGoal !== '') {
+        try { localStorage.setItem(STORAGE_KEY+'_goal', String(data.btcGoal)); } catch(e) {}
+        const gi = document.getElementById('btcGoal');
+        if (gi) gi.value = data.btcGoal;
+      }
+      render();
+      showStatus('백업 불러오기 완료 (목표 BTC 포함)');
+    } catch(err) { showStatus('백업 파일 형식이 올바르지 않습니다.',false); }
+  };
+  reader.readAsText(file,'utf-8');
+}
+function downloadCapture() {
+  const target=document.getElementById('thumbnailCard')||document.body;
+  if(typeof html2canvas!=='function'){showStatus('캡처 기능을 불러오지 못했습니다.',false);return;}
+  html2canvas(target,{scale:2,backgroundColor:null}).then(canvas=>{const link=document.createElement('a');link.download='bitcoin-saving-dashboard.png';link.href=canvas.toDataURL('image/png');link.click();showStatus('이미지 저장 완료');});
+}
+
+/* ===================== EXCEL EXPORT ===================== */
+function exportExcel() {
+  if (typeof XLSX === 'undefined') { showStatus('엑셀 라이브러리를 불러오는 중입니다. 잠시 후 다시 시도하세요.', false); return; }
+  const computed = getComputedRows();
+  const header = ['회차','일자','금액(원)','BTC 가격(원)','수량(BTC)','누적 투자금(원)','누적 수량(BTC)','당시 평가금액(원)','당시 수익률(%)'];
+  const dataRows = computed.map(r => [
+    r.round,
+    r.date,
+    r.amount,
+    r.btcPrice,
+    Number(r.quantity.toFixed(8)),
+    r.cumulativeAmount,
+    Number(r.cumulativeQuantity.toFixed(8)),
+    Math.round(r.valuation),
+    Number(r.returnRate.toFixed(4))
+  ]);
+
+  // 워크시트 생성
+  const ws = XLSX.utils.aoa_to_sheet([header, ...dataRows]);
+
+  // 컬럼 너비 설정
+  ws['!cols'] = [
+    {wch:6},{wch:12},{wch:14},{wch:16},{wch:16},
+    {wch:16},{wch:18},{wch:18},{wch:14}
+  ];
+
+  // 헤더 행 굵게 (sheetjs는 기본 스타일 지원이 제한적이므로 metadata로만)
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  for (let c = range.s.c; c <= range.e.c; c++) {
+    const cellAddr = XLSX.utils.encode_cell({r:0, c});
+    if (!ws[cellAddr]) continue;
+    ws[cellAddr].s = { font: { bold: true }, fill: { fgColor: { rgb: '1A2030' } } };
+  }
+
+  // 요약 시트 생성
+  const last = computed.at(-1);
+  const first = computed[0];
+  const totalBTC = last ? last.cumulativeQuantity : 0;
+  const totalAmt = last ? last.cumulativeAmount : 0;
+  const avg = totalBTC > 0 ? Math.round(totalAmt / totalBTC) : 0;
+  const currentPrice = last ? last.btcPrice : 0;
+  const currentValue = Math.round(totalBTC * currentPrice);
+  const pnl = currentValue - totalAmt;
+  const ret = totalAmt > 0 ? ((pnl / totalAmt) * 100).toFixed(2) : '0.00';
+
+  const summaryData = [
+    ['항목', '값'],
+    ['총 투자금 (원)', totalAmt],
+    ['총 보유 BTC', Number(totalBTC.toFixed(8))],
+    ['평균 매수가 (원)', avg],
+    ['현재 기준가 (원)', currentPrice],
+    ['현재 평가금액 (원)', currentValue],
+    ['누적 손익 (원)', pnl],
+    ['현재 수익률 (%)', Number(ret)],
+    ['첫 매수일', first ? first.date : '-'],
+    ['최근 반영일', last ? last.date : '-'],
+    ['총 회차 수', computed.length],
+  ];
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+  wsSummary['!cols'] = [{wch:22},{wch:20}];
+
+  // 워크북 조립 및 다운로드
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '매수기록');
+  XLSX.utils.book_append_sheet(wb, wsSummary, '요약');
+
+  const title = (document.getElementById('blogTitle').value || '비트코인저축').replace(/\s+/g,'_');
+  const date = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `${title}_${date}.xlsx`);
+  showStatus('엑셀 파일 다운로드를 시작했습니다.');
+}
+
+/* ===================== EXCEL IMPORT ===================== */
+let _pendingExcelRows = [];
+
+function importExcel(file) {
+  if (typeof XLSX === 'undefined') { showStatus('엑셀 라이브러리를 불러오는 중입니다. 잠시 후 다시 시도하세요.', false); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array', cellDates: true });
+
+      // 첫 번째 시트 우선, '매수기록' 시트 있으면 우선
+      const sheetName = wb.SheetNames.includes('매수기록') ? '매수기록' : wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+      if (!json.length) throw new Error('데이터가 없습니다.');
+
+      // 컬럼명 매핑 (한글·영문 모두 지원)
+      const colMap = {
+        date:      ['일자','date','날짜','Date'],
+        amount:    ['금액(원)','금액','amount','Amount','투자금액'],
+        btcPrice:  ['BTC 가격(원)','BTC 가격','btcPrice','btc_price','BtcPrice','가격'],
+        quantity:  ['수량(BTC)','수량','quantity','Quantity','BTC수량'],
+      };
+      function findCol(row, keys) {
+        const rowKeys = Object.keys(row);
+        for (const k of keys) {
+          const found = rowKeys.find(rk => rk.trim() === k.trim());
+          if (found !== undefined) return found;
         }
-    </script>
+        return null;
+      }
+      const sampleRow = json[0];
+      const dateCol     = findCol(sampleRow, colMap.date);
+      const amountCol   = findCol(sampleRow, colMap.amount);
+      const btcPriceCol = findCol(sampleRow, colMap.btcPrice);
+      const qtyCol      = findCol(sampleRow, colMap.quantity);
+
+      if (!dateCol || !amountCol || !btcPriceCol) {
+        throw new Error(`필수 컬럼을 찾지 못했습니다.\n필요 컬럼: 일자, 금액, BTC 가격\n발견된 컬럼: ${Object.keys(sampleRow).join(', ')}`);
+      }
+
+      const today = new Date(); today.setHours(0,0,0,0);
+      const parsed = json.map(row => {
+        // 날짜: Date 객체 or 문자열 처리
+        let rawDate = row[dateCol];
+        let dateStr = '';
+        if (rawDate instanceof Date) {
+          dateStr = rawDate.toISOString().slice(0,10);
+        } else {
+          dateStr = String(rawDate || '').slice(0,10).replace(/\./g,'-');
+        }
+        const qty = qtyCol && row[qtyCol] !== '' ? Number(row[qtyCol]) : null;
+        return {
+          date: dateStr,
+          amount: Number(String(row[amountCol]).replace(/,/g,'') || 0),
+          btcPrice: Number(String(row[btcPriceCol]).replace(/,/g,'') || 0),
+          quantity: qty != null && Number.isFinite(qty) && qty > 0 ? qty : null,
+        };
+      }).filter(r => {
+        if (!r.date || r.date.length < 10) return false;
+        const t = new Date(r.date + 'T00:00:00').getTime();
+        return !isNaN(t);
+      });
+
+      if (!parsed.length) throw new Error('유효한 데이터 행이 없습니다.');
+
+      _pendingExcelRows = parsed;
+      openExcelModal(parsed);
+    } catch(err) {
+      showStatus('엑셀 불러오기 실패: ' + err.message, false);
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function openExcelModal(parsed) {
+  // 경고 메시지
+  const warnEl = document.getElementById('excelModalWarn');
+  const futureCnt = parsed.filter(r => {
+    const t = new Date(r.date + 'T00:00:00').getTime();
+    const today = new Date(); today.setHours(0,0,0,0);
+    return t > today.getTime();
+  }).length;
+  if (futureCnt > 0) {
+    warnEl.textContent = `⚠️ 미래 날짜 ${futureCnt}건은 화면에서 자동 제외됩니다.`;
+    warnEl.classList.remove('hidden');
+  } else {
+    warnEl.classList.add('hidden');
+  }
+
+  // 통계
+  document.getElementById('excelModalStat').innerHTML =
+    `총 <strong>${parsed.length}건</strong> 발견 · 날짜 범위: <strong>${parsed[0]?.date || '-'}</strong> ~ <strong>${parsed.at(-1)?.date || '-'}</strong>`;
+
+  // 미리보기 테이블 (최대 10행)
+  const previewRows = parsed.slice(0, 10);
+  document.getElementById('excelPreviewHead').innerHTML = `<tr>
+    <th>일자</th>
+    <th class="right">금액</th>
+    <th class="right">BTC 가격</th>
+    <th class="right">수량</th>
+  </tr>`;
+  document.getElementById('excelPreviewBody').innerHTML = previewRows.map(r => `<tr>
+    <td>${r.date}</td>
+    <td class="right">₩${Number(r.amount).toLocaleString('ko-KR')}</td>
+    <td class="right">₩${Number(r.btcPrice).toLocaleString('ko-KR')}</td>
+    <td class="right">${r.quantity != null ? Number(r.quantity).toFixed(8) : '(자동계산)'}</td>
+  </tr>`).join('') + (parsed.length > 10 ? `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:10px;">... 외 ${parsed.length - 10}건</td></tr>` : '');
+
+  document.getElementById('excelModal').classList.add('open');
+}
+
+function closeExcelModal() {
+  document.getElementById('excelModal').classList.remove('open');
+  _pendingExcelRows = [];
+  document.getElementById('excelFile').value = '';
+}
+
+function applyExcelImport() {
+  if (!_pendingExcelRows.length) return;
+  rows = _pendingExcelRows;
+  closeExcelModal();
+  render();
+  showStatus(`엑셀 데이터 ${rows.length}건을 성공적으로 적용했습니다.`);
+}
+
+/* ===================== GOAL ===================== */
+function saveGoal() {
+  const input = document.getElementById('btcGoal');
+  if (!input) return;
+  const val = String(input.value || '').trim();
+  try { localStorage.setItem(STORAGE_KEY + '_goal', val); } catch(e) {}
+  updateGoalStats();
+  showStatus('목표 BTC가 저장되었습니다.');
+}
+
+function updateGoalStats() {
+  const computed = getComputedRows();
+  if (!computed.length) return;
+  const last = computed[computed.length - 1];
+  const totalBTC = Number(last.cumulativeQuantity || 0);
+  const totalAmt = Number(last.cumulativeAmount || 0);
+  const avg = totalBTC > 0 ? totalAmt / totalBTC : 0;
+
+  const avgEl = document.getElementById('goalAvgPrice');
+  if (avgEl) avgEl.textContent = avg ? won(avg) : '-';
+
+  let goalStr = '';
+  try { goalStr = localStorage.getItem(STORAGE_KEY + '_goal') || ''; } catch(e) {}
+  const goal = Number(goalStr || 0);
+
+  const pctEl  = document.getElementById('goalPct');
+  const fillEl = document.getElementById('goalBarFill');
+  const curEl  = document.getElementById('goalCurrentBtc');
+  const tgtEl  = document.getElementById('goalTargetBtc');
+  const remEl  = document.getElementById('goalRemain');
+
+  if (curEl) curEl.textContent = `현재 ${totalBTC.toFixed(8)} BTC`;
+  if (tgtEl) tgtEl.textContent = goal > 0 ? `목표 ${goalStr} BTC` : '목표 - BTC';
+
+  if (goal > 0) {
+    const progress = (totalBTC / goal) * 100;
+    const capped = Math.max(0, Math.min(progress, 100));
+    if (pctEl)  pctEl.textContent  = progress.toFixed(2) + '%';
+    if (fillEl) fillEl.style.width = capped.toFixed(2) + '%';
+    const remaining = Math.max(0, goal - totalBTC);
+    if (remEl) {
+      if (progress >= 100) {
+        remEl.textContent = '🎉 목표를 달성했습니다!';
+        remEl.style.color = 'var(--good)';
+      } else {
+        remEl.textContent = `목표까지 ${remaining.toFixed(8)} BTC 남았습니다.`;
+        remEl.style.color = '';
+      }
+    }
+    // ② 예상 달성일 계산 (최근 8회 평균 주간 BTC 적립 속도 기반)
+    const forecastEl = document.getElementById('goalForecast');
+    if (forecastEl && remaining > 0) {
+      const recentRows = computed.slice(-8);
+      if (recentRows.length >= 2) {
+        const weeklyBtc = recentRows.reduce((s,r)=>s+r.quantity,0) / recentRows.length;
+        if (weeklyBtc > 0) {
+          const weeksLeft = Math.ceil(remaining / weeklyBtc);
+          const eta = new Date();
+          eta.setDate(eta.getDate() + weeksLeft * 7);
+          const etaStr = eta.toISOString().slice(0,10);
+          forecastEl.textContent = `📅 현재 페이스라면 약 ${weeksLeft}주 후 달성 예정 (${etaStr})`;
+          forecastEl.style.display = 'inline-block';
+        } else { forecastEl.style.display = 'none'; }
+      } else { forecastEl.style.display = 'none'; }
+    } else if (forecastEl) { forecastEl.style.display = 'none'; }
+  } else {
+    if (pctEl)  pctEl.textContent  = '-';
+    if (fillEl) fillEl.style.width = '0%';
+    if (remEl)  { remEl.textContent = '목표를 설정하면 진행률이 표시됩니다.'; remEl.style.color = ''; }
+  }
+}
+
+/* ===================== CHART RANGE ===================== */
+function setChartRange(years) {
+  _chartRangeYears = years;
+  // 버튼 active 상태
+  document.querySelectorAll('.cf-btn').forEach(b => b.classList.remove('active'));
+  const labels = {0:'전체',1:'1년',2:'2년',3:'3년'};
+  document.querySelectorAll('.cf-btn').forEach(b => {
+    if (b.textContent.trim() === (labels[years]||'전체')) b.classList.add('active');
+  });
+  renderChart(getComputedRows(), years);
+}
+
+/* ===================== YEAR SUMMARY ===================== */
+function renderYearSummary(computed) {
+  const container = document.getElementById('yearSummaryList');
+  if (!container) return;
+  const byYear = {};
+  computed.forEach(r => {
+    const yr = r.date.slice(0,4);
+    if (!byYear[yr]) byYear[yr] = {invested:0, btc:0, rounds:0, first:'', last:''};
+    byYear[yr].invested += r.amount;
+    byYear[yr].btc += r.quantity;
+    byYear[yr].rounds++;
+    if (!byYear[yr].first) byYear[yr].first = r.date;
+    byYear[yr].last = r.date;
+  });
+  const years = Object.keys(byYear).sort((a,b)=>b-a);
+  container.innerHTML = years.map(yr => {
+    const d = byYear[yr];
+    const avgPx = d.btc > 0 ? won(d.invested / d.btc) : '-';
+    const btcClean = parseFloat(d.btc.toFixed(8));
+    return `
+    <div class="year-row" onclick="toggleYear('yd${yr}')">
+      <span class="yr-label">${yr}</span>
+      <span class="yr-stat"><strong>${d.rounds}회</strong> 매수</span>
+      <span class="yr-stat">투자 <strong>${won(d.invested)}</strong></span>
+      <span class="yr-stat">+<strong>${btcClean} BTC</strong></span>
+      <span class="yr-arrow">▾</span>
+    </div>
+    <div id="yd${yr}" class="year-detail">
+      <div class="yr-detail-grid">
+        <div class="yr-detail-item">기간<strong>${d.first} ~ ${d.last}</strong></div>
+        <div class="yr-detail-item">총 투자금<strong>${won(d.invested)}</strong></div>
+        <div class="yr-detail-item">취득 BTC<strong>${btcClean} BTC</strong></div>
+        <div class="yr-detail-item">평균 매수가<strong>${avgPx}</strong></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleYear(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('open');
+  const row = el.previousElementSibling;
+  if (row) row.classList.toggle('open');
+}
+
+/* ===================== DEL MODAL BACKDROP ===================== */
+document.addEventListener('DOMContentLoaded', () => {
+  const bg = document.getElementById('delModalBg');
+  if (bg) bg.addEventListener('click', e => { if(e.target===bg) closeDelModal(); });
+});
+
+document.addEventListener('DOMContentLoaded',()=>{
+  loadState();
+  document.getElementById('blogTitle').addEventListener('input',render);
+  document.getElementById('searchInput').addEventListener('input',e=>{searchKeyword=e.target.value;renderTable(getComputedRows());});
+  document.getElementById('importFile').addEventListener('change',e=>{if(e.target.files&&e.target.files[0])importJSON(e.target.files[0]);e.target.value='';});
+  document.getElementById('excelFile').addEventListener('change',e=>{if(e.target.files&&e.target.files[0])importExcel(e.target.files[0]);});
+  document.getElementById('excelModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeExcelModal(); });
+  document.getElementById('backupFile').addEventListener('change',e=>{if(e.target.files&&e.target.files[0])importBackup(e.target.files[0]);e.target.value='';});
+  const saved=localStorage.getItem('btc_dashboard_last_backup');
+  if(saved){const lbl=document.getElementById('backupTimeLabel');if(lbl)lbl.textContent='마지막 백업: '+saved;}
+  try {
+    const savedGoal = localStorage.getItem(STORAGE_KEY + '_goal');
+    if (savedGoal) { const gi=document.getElementById('btcGoal'); if(gi) gi.value=savedGoal; }
+  } catch(e) {}
+  render();
+});
+</script>
 </body>
 </html>
