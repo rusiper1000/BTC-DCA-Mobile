@@ -71,9 +71,7 @@ body::after {
 .topbar-left { display:flex; align-items:center; gap:12px; }
 .logo-text { font-size:18px; font-weight:800; letter-spacing:-0.03em; color:var(--ink); }
 .logo-text span { color:var(--accent); }
-.live-price-area {
-  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-}
+.live-price-area { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .live-btn {
   display:inline-flex; align-items:center; gap:6px;
   padding:8px 14px; border-radius:10px;
@@ -97,19 +95,17 @@ body::after {
   border-radius:24px;
   padding:20px;
   position:relative; overflow:hidden;
-  transition:border-color .2s, transform .2s;
 }
-.kpi-card:hover { border-color:var(--border2); transform:translateY(-2px); }
+.kpi-card:hover { transform:translateY(-2px); }
 .kpi-card::before {
   content:"";
   position:absolute; top:0; left:0; right:0; height:3px;
   border-radius:24px 24px 0 0;
 }
-.kpi-card.k-invested::before { background:var(--accent2); }
-.kpi-card.k-btc::before { background:var(--accent); }
-.kpi-card.k-value::before { background:linear-gradient(90deg,var(--accent2),var(--accent)); }
-.kpi-card.k-return::before { background:var(--good); }
-.kpi-card.bad::before { background:var(--bad) !important; }
+.kpi-card.k-invested::before { background:#3b82f6; }
+.kpi-card.k-btc::before { background:#f7931a; }
+.kpi-card.k-value::before { background:linear-gradient(90deg,#3b82f6,#f7931a); }
+.kpi-card.k-return::before { background:#22c55e; }
 .kpi-icon { font-size:20px; margin-bottom:10px; }
 .kpi-label { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px; }
 .kpi-val { font-size:28px; font-weight:900; letter-spacing:-0.04em; line-height:1; }
