@@ -2,28 +2,27 @@
   "name": "비트코인 저축",
   "short_name": "비트코인 저축",
   "description": "비트코인 DCA 정액 적립식 투자 수익률 추적기",
-  "start_url": ".",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f7931a",
+  "background_color": "#0e1117",
   "theme_color": "#f7931a",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-192.png",
+      "src": "icon-192.jpg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-180.png",
+      "src": "icon-180.jpg",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/jpeg"
+    },
+    {
+      "src": "icon-512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
     }
   ]
 }
