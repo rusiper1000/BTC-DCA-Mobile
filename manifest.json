@@ -1,13 +1,9 @@
 {
-  "name": "비트코인 저축",
-  "short_name": "BTC DCA",
+  "name": "BTC 저축 트래커",
+  "short_name": "BTC저축",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0e1117",
-  "theme_color": "#f7931a",
-  "icons": [
-    {"src": "icon-180.jpg", "sizes": "180x180", "type": "image/jpeg"},
-    {"src": "icon-192.jpg", "sizes": "192x192", "type": "image/jpeg"},
-    {"src": "icon-512.jpg", "sizes": "512x512", "type": "image/jpeg"}
-  ]
+  "background_color": "#ffffff",
+  "theme_color": "#111111",
+  "icons": []
 }
